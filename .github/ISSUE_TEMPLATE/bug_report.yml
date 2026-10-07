@@ -1,0 +1,79 @@
+name: Bug report
+description: Something in Quizeasy is broken or behaves unexpectedly.
+title: '[Bug]: '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this.
+
+        **Do not paste private study material, exam content, or personal notes.**
+        Use a sanitized or entirely made-up example instead.
+
+        Security issues go through our [security policy](../SECURITY.md), not here.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the actual behavior, including the exact wording of any error message.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps starting from a fresh page load.
+      placeholder: |
+        1. Open the app
+        2. Paste ...
+        3. Click ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Quizeasy version / commit
+      description: Shown in Settings under "Privacy" (app version and data schema version), or the commit hash.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Import / parsing
+        - Library and set editing
+        - Flashcards
+        - Multiple choice
+        - Identification
+        - Mixed quiz / results
+        - Export / backup / restore
+        - Offline / install (PWA)
+        - Accessibility / keyboard
+        - Layout / responsive
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser and version, operating system, and whether you ran `npm run dev` or a built/served `dist/`.
+      placeholder: 'Chrome 141 on Windows 11, served from npm run preview'
+    validations:
+      required: true
+  - type: textarea
+    id: console
+    attributes:
+      label: Console output
+      description: Any errors or warnings from the browser console. Redact anything personal.
+      render: text
+    validations:
+      required: false
