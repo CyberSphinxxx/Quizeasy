@@ -1,0 +1,79 @@
+{
+  "format": "quizeasy-set",
+  "schemaVersion": 1,
+  "exportedAt": "2026-10-07T00:00:00.000Z",
+  "set": {
+    "id": "sample-set-1",
+    "title": "Computer Basics",
+    "description": "Example Quizeasy set — original content, safe to share.",
+    "createdAt": "2026-10-07T00:00:00.000Z",
+    "updatedAt": "2026-10-07T00:00:00.000Z",
+    "tags": ["computer"]
+  },
+  "questions": [
+    {
+      "id": "sample-q1",
+      "setId": "sample-set-1",
+      "prompt": "What does CPU stand for?",
+      "answer": "Central Processing Unit",
+      "acceptedAnswers": ["Central Processor Unit"],
+      "wrongChoices": [
+        "Central Program Unit",
+        "Computer Processing Utility",
+        "Core Processing Utility"
+      ],
+      "explanation": "The CPU executes instructions and performs calculations.",
+      "tags": ["computer", "hardware"],
+      "createdAt": "2026-10-07T00:00:00.000Z",
+      "updatedAt": "2026-10-07T00:00:00.000Z"
+    },
+    {
+      "id": "sample-q2",
+      "setId": "sample-set-1",
+      "prompt": "What does RAM stand for?",
+      "answer": "Random Access Memory",
+      "acceptedAnswers": ["RAM"],
+      "wrongChoices": [
+        "Read Access Memory",
+        "Random Allocation Module",
+        "Rapid Access Machine"
+      ],
+      "explanation": "RAM temporarily stores data that active programs need.",
+      "tags": ["computer", "memory"],
+      "createdAt": "2026-10-07T00:00:01.000Z",
+      "updatedAt": "2026-10-07T00:00:01.000Z"
+    },
+    {
+      "id": "sample-q3",
+      "setId": "sample-set-1",
+      "prompt": "What does ROM stand for?",
+      "answer": "Read Only Memory",
+      "acceptedAnswers": ["ROM"],
+      "wrongChoices": [
+        "Random Output Memory",
+        "Read Operating Module",
+        "Runtime Object Memory"
+      ],
+      "explanation": "ROM commonly stores data that is not intended to change frequently.",
+      "tags": ["computer", "memory"],
+      "createdAt": "2026-10-07T00:00:02.000Z",
+      "updatedAt": "2026-10-07T00:00:02.000Z"
+    },
+    {
+      "id": "sample-q4",
+      "setId": "sample-set-1",
+      "prompt": "What does SSD stand for?",
+      "answer": "Solid State Drive",
+      "acceptedAnswers": ["Solid-State Drive"],
+      "wrongChoices": [
+        "Secure System Disk",
+        "Software Storage Device",
+        "System Startup Drive"
+      ],
+      "explanation": "An SSD stores data in flash memory with no moving parts.",
+      "tags": ["computer", "storage"],
+      "createdAt": "2026-10-07T00:00:03.000Z",
+      "updatedAt": "2026-10-07T00:00:03.000Z"
+    }
+  ]
+}
