@@ -1,0 +1,51 @@
+name: Feature request
+description: Suggest a capability or improvement for Quizeasy.
+title: '[Feature]: '
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Quizeasy is local-first and backend-free by design, and the MVP requires no
+        account and no AI API key. Ideas that respect those constraints are much
+        easier to accept. See the roadmap in the [README](../../README.md).
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the situation you are in and what is currently awkward or impossible.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should Quizeasy do? Sketches, mockups, or example text are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+      description: Other options, including how you handle this today.
+    validations:
+      required: false
+  - type: dropdown
+    id: constraints
+    attributes:
+      label: Does this work without a backend?
+      description: Anything needing a server, an account, or a hosted AI key is out of scope for 1.x.
+      options:
+        - Yes — it works entirely in the browser with existing local data
+        - Yes — but it needs a new persisted field (schema change)
+        - No — it would need a server or hosted service
+        - Unsure
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This is not already requested in an open issue
+          required: true
