@@ -1,0 +1,60 @@
+name: Parser / import issue
+description: Quizeasy did not parse pasted text the way you expected.
+title: '[Import]: '
+labels: ['import', 'parser']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The parser is the defining feature of Quizeasy, so this report is genuinely
+        useful. Please keep the sample input as small as possible.
+
+        **Sanitize before posting.** Replace your real study material with made-up
+        questions, or trim the paste down to only the lines that show the problem.
+        Never post private notes, exam content, or copyrighted material.
+
+        Read the format specification first:
+        [docs/06-IMPORT-PARSER-SPEC.md](../../docs/06-IMPORT-PARSER-SPEC.md).
+  - type: textarea
+    id: sample
+    attributes:
+      label: Sanitized sample input
+      description: The exact text you pasted, reduced to the smallest example that reproduces the issue. Keep line breaks.
+      render: text
+      placeholder: |
+        Q: What does CPU stand for?
+        A: Central Processing Unit
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What Quizeasy did
+      description: How many entries were detected, and which were valid / warning / invalid? Paste any warning or error text verbatim.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: Describe the entries you expected to see, and why.
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Where did the text come from?
+      options:
+        - Typed or pasted from my own notes
+        - Copied from an AI tool (ChatGPT, Gemini, Claude, other)
+        - Copied from a PDF, slide deck, or document
+        - Another app's export
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Quizeasy version / commit
+    validations:
+      required: true
