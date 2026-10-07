@@ -1,0 +1,31 @@
+Q: What does CPU stand for?
+A: Central Processing Unit
+W: Central Program Unit
+W: Computer Processing Utility
+W: Core Processing Utility
+E: The CPU executes instructions and performs calculations.
+T: computer, hardware
+
+Q: What does RAM stand for?
+A: Random Access Memory
+W: Read Access Memory
+W: Random Allocation Module
+W: Rapid Access Machine
+E: RAM temporarily stores data that active programs need.
+T: computer, memory
+
+Q: What does ROM stand for?
+A: Read Only Memory
+W: Random Output Memory
+W: Read Operating Module
+W: Runtime Object Memory
+E: ROM commonly stores data that is not intended to change frequently.
+T: computer, memory
+
+Q: What does SSD stand for?
+A: Solid State Drive
+W: Secure System Disk
+W: Software Storage Device
+W: System Startup Drive
+E: An SSD stores data in flash memory with no moving parts.
+T: computer, storage
