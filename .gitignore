@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+
+# Build & cache output
+dist/
+dev-dist/
+*.tsbuildinfo
+.vite/
+.eslintcache
+
+# Test output
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.playwright/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# AI agents & setup bundles
+.freebuff/
+Quizeasy-AI-Agent-Loop/
+*agent-loop*/
+.agents/
+.gemini/
+.claude/
+.cursor/
+.cline/
+.roo/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+*.swp
+*~
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Logs & temp
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tmp
+*.temp
+
