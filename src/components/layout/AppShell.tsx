@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { PRIMARY_NAV, isNavItemActive, type NavItem } from './navigation';
+import { useNavShortcuts } from './useNavShortcuts';
 import { LoadingPanel } from '@/components/ui/Feedback';
 
 function Wordmark() {
@@ -8,33 +9,43 @@ function Wordmark() {
     <span className="flex items-center gap-2">
       <span
         aria-hidden="true"
-        className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-sm font-bold text-white"
+        className="bg-btn text-btn-ink font-display text-caption flex size-6 items-center justify-center rounded-full font-semibold"
       >
-        Q
+        q
       </span>
-      <span className="text-lg font-semibold tracking-tight">Quizeasy</span>
+      <span className="font-display text-card font-semibold tracking-tight">
+        Quizeasy
+      </span>
     </span>
   );
 }
 
-function navItemClasses(active: boolean): string {
-  return `nav-item ${active ? 'nav-item-active' : 'nav-item-idle'}`;
-}
-
 function DesktopNav({ pathname }: { pathname: string }) {
   return (
-    <nav aria-label="Main" className="flex flex-col gap-1">
-      {PRIMARY_NAV.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          className={navItemClasses(isNavItemActive(pathname, item))}
-          aria-current={isNavItemActive(pathname, item) ? 'page' : undefined}
-        >
-          <item.icon aria-hidden="true" className="size-5" />
-          <span>{item.label}</span>
-        </NavLink>
-      ))}
+    <nav aria-label="Main" className="flex flex-col gap-0.5">
+      {PRIMARY_NAV.map((item) => {
+        const active = isNavItemActive(pathname, item);
+        return (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={`nav-item ${active ? 'nav-item-active' : 'nav-item-idle'}`}
+            aria-current={active ? 'page' : undefined}
+          >
+            <item.icon aria-hidden="true" className="size-4.5 shrink-0" />
+            <span>{item.label}</span>
+            {item.chord ? (
+              <span
+                aria-hidden="true"
+                className="ml-auto flex items-center gap-1"
+              >
+                <kbd className="keycap">G</kbd>
+                <kbd className="keycap">{item.chord}</kbd>
+              </span>
+            ) : null}
+          </NavLink>
+        );
+      })}
     </nav>
   );
 }
@@ -43,7 +54,7 @@ function MobileNav({ pathname }: { pathname: string }) {
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden dark:border-slate-800 dark:bg-slate-950/95"
+      className="border-line bg-sidebar fixed inset-x-0 bottom-0 z-30 border-t pb-[env(safe-area-inset-bottom)] nav:hidden"
     >
       <ul className="grid grid-cols-5">
         {PRIMARY_NAV.map((item: NavItem) => {
@@ -53,10 +64,8 @@ function MobileNav({ pathname }: { pathname: string }) {
               <NavLink
                 to={item.to}
                 aria-current={active ? 'page' : undefined}
-                className={`flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-[11px] font-medium ${
-                  active
-                    ? 'text-indigo-700 dark:text-indigo-300'
-                    : 'text-slate-600 dark:text-slate-400'
+                className={`nav-item-mobile ${
+                  active ? 'nav-item-mobile-active' : 'nav-item-mobile-idle'
                 }`}
               >
                 <item.icon aria-hidden="true" className="size-5" />
@@ -73,33 +82,34 @@ function MobileNav({ pathname }: { pathname: string }) {
 export function AppShell() {
   const location = useLocation();
   const pathname = location.pathname;
+  useNavShortcuts();
 
   return (
-    <div className="min-h-full bg-slate-50 dark:bg-slate-950">
+    <div className="bg-canvas min-h-full">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:shadow-lg dark:focus:bg-slate-900"
+        className="bg-surface border-line rounded-control sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:border focus:px-3 focus:py-2"
       >
         Skip to content
       </a>
 
-      <div className="lg:flex">
-        <aside className="hidden w-60 shrink-0 border-r border-slate-200 bg-white px-4 py-6 lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:gap-6 dark:border-slate-800 dark:bg-slate-900">
+      <div className="nav:flex">
+        <aside className="border-line bg-sidebar nav:sticky nav:top-0 nav:flex nav:h-screen nav:w-58 hidden shrink-0 border-r px-4 py-6 nav:flex-col nav:gap-8">
           <Wordmark />
           <DesktopNav pathname={pathname} />
-          <p className="mt-auto text-xs text-slate-500 dark:text-slate-400">
-            Your sets stay in this browser. No account, no server.
+          <p className="text-caption text-muted mt-auto">
+            Your sets stay on this device. No account, no server.
           </p>
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:hidden dark:border-slate-800 dark:bg-slate-900">
+          <header className="border-line nav:hidden flex items-center border-b px-4 py-3">
             <Wordmark />
           </header>
 
           <main
             id="main-content"
-            className="mx-auto w-full max-w-5xl flex-1 px-4 pb-28 pt-4 sm:px-6 lg:pb-10 lg:pt-8"
+            className="mx-auto w-full max-w-[1040px] flex-1 px-4 py-6 pb-28 sm:px-6 nav:px-14 nav:py-12 nav:pb-12"
           >
             <Suspense fallback={<LoadingPanel label="Loading…" />}>
               <Outlet />
