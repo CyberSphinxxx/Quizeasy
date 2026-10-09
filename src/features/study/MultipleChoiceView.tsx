@@ -1,6 +1,7 @@
 import { CircleAlert, CircleCheck } from 'lucide-react';
 import type { SessionPlanItem } from '@/domain/schemas/study';
 import { Button } from '@/components/ui/Button';
+import { Keycap } from '@/components/ui/Badge';
 import { answerKey } from '@/domain/quiz/normalize';
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -34,13 +35,11 @@ export function MultipleChoiceView({
   const reveal = answered && showFeedback;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="card flex flex-col gap-2 p-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          Pick the answer
-        </p>
+    <div className="flex flex-col gap-5">
+      <div className="card flex flex-col gap-2 p-8">
+        <p className="eyebrow">Pick the answer</p>
         <p
-          className="whitespace-pre-wrap text-lg font-medium"
+          className="text-question whitespace-pre-wrap"
           data-testid="mcq-prompt"
         >
           {prompt}
@@ -65,14 +64,14 @@ export function MultipleChoiceView({
             <li key={`${choice}-${index}`}>
               <button
                 type="button"
-                className={`flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left transition ${
+                className={`rounded-control flex w-full items-start gap-3 border px-4 py-3 text-left transition ${
                   showAsCorrect
-                    ? 'border-emerald-500 bg-emerald-50 dark:border-emerald-600 dark:bg-emerald-950'
+                    ? 'border-correct bg-correct/8'
                     : showAsWrong
-                      ? 'border-rose-500 bg-rose-50 dark:border-rose-600 dark:bg-rose-950'
+                      ? 'border-incorrect bg-incorrect/8'
                       : selected
-                        ? 'border-indigo-500 bg-indigo-50 dark:border-indigo-500 dark:bg-indigo-950'
-                        : 'border-slate-300 bg-white hover:border-indigo-400 hover:bg-indigo-50/60 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800'
+                        ? 'border-accent bg-accent-soft'
+                        : 'border-line bg-surface hover:border-line-strong hover:bg-raised'
                 }`}
                 onClick={() => onSelect(choice)}
                 disabled={answered}
@@ -81,21 +80,21 @@ export function MultipleChoiceView({
               >
                 <span
                   aria-hidden="true"
-                  className="flex size-6 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xs font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-100"
+                  className="rounded-chip bg-raised text-muted mt-0.5 flex size-5 shrink-0 items-center justify-center font-mono text-eyebrow"
                 >
                   {LETTERS[index] ?? index + 1}
                 </span>
-                <span className="whitespace-pre-wrap text-sm font-medium">
+                <span className="text-body whitespace-pre-wrap font-medium">
                   {choice}
                 </span>
                 {showAsCorrect ? (
-                  <span className="ml-auto flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                  <span className="text-caption text-correct ml-auto flex items-center gap-1 font-medium">
                     <CircleCheck aria-hidden="true" className="size-4" />
                     Correct
                   </span>
                 ) : null}
                 {showAsWrong ? (
-                  <span className="ml-auto flex items-center gap-1 text-xs font-semibold text-rose-700 dark:text-rose-300">
+                  <span className="text-caption text-incorrect ml-auto flex items-center gap-1 font-medium">
                     <CircleAlert aria-hidden="true" className="size-4" />
                     Not this one
                   </span>
@@ -107,16 +106,13 @@ export function MultipleChoiceView({
       </ul>
 
       {reveal ? (
-        <div
-          className={`card p-4 ${isCorrect ? 'border-emerald-300 dark:border-emerald-800' : 'border-rose-300 dark:border-rose-900'}`}
-          data-testid="mcq-feedback"
-        >
-          <p className="flex items-center gap-2 font-semibold">
+        <div className="card p-5" data-testid="mcq-feedback">
+          <p className="text-body flex items-center gap-2 font-medium">
             {isCorrect ? (
               <>
                 <CircleCheck
                   aria-hidden="true"
-                  className="size-5 text-emerald-600 dark:text-emerald-400"
+                  className="text-correct size-4"
                 />
                 Correct
               </>
@@ -124,7 +120,7 @@ export function MultipleChoiceView({
               <>
                 <CircleAlert
                   aria-hidden="true"
-                  className="size-5 text-rose-600 dark:text-rose-400"
+                  className="text-incorrect size-4"
                 />
                 {selectedChoice === undefined
                   ? 'Skipped'
@@ -133,23 +129,27 @@ export function MultipleChoiceView({
             )}
           </p>
           {explanation ? (
-            <p className="mt-2 text-sm text-slate-700 dark:text-slate-200">
-              {explanation}
-            </p>
+            <p className="text-body text-muted mt-2">{explanation}</p>
           ) : null}
         </div>
       ) : null}
 
-      {!answered ? (
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-3">
+        {!answered ? (
           <Button variant="ghost" onClick={onSkip}>
             Skip
           </Button>
-          <p className="hint">
-            Keys: 1–{choices.length} to choose, Enter for next.
-          </p>
-        </div>
-      ) : null}
+        ) : null}
+        <p className="text-caption text-muted flex flex-wrap items-center gap-1.5">
+          <Keycap>1</Keycap>
+          <span aria-hidden="true">–</span>
+          <Keycap>{String(choices.length)}</Keycap>
+          <span>choose</span>
+          <span aria-hidden="true">·</span>
+          <Keycap>Enter</Keycap>
+          <span>next</span>
+        </p>
+      </div>
     </div>
   );
 }
