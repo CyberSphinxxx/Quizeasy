@@ -1,16 +1,8 @@
 @import 'tailwindcss';
+@import './theme.css';
 
 /* Class-based dark mode so the user preference (not only the OS) controls it. */
 @custom-variant dark (&:where(.dark, .dark *));
-
-@theme {
-  --font-sans:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-  --font-mono:
-    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
-    monospace;
-}
 
 @layer base {
   html {
@@ -18,93 +10,196 @@
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100;
-    font-family: var(--font-sans);
+    @apply bg-canvas text-ink font-sans text-body;
     /* Keep the mobile bottom navigation from covering page content. */
     padding-bottom: env(safe-area-inset-bottom);
-  }
-
-  :focus-visible {
-    @apply outline-2 outline-offset-2 outline-indigo-600 dark:outline-indigo-400;
-  }
-
-  ::selection {
-    @apply bg-indigo-200 text-indigo-950;
   }
 
   h1,
   h2,
   h3,
   h4 {
-    @apply font-semibold tracking-tight;
+    @apply font-display font-medium text-ink;
+    font-variation-settings:
+      'SOFT' 0,
+      'WONK' 0;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--accent-soft);
+    color: var(--ink);
+  }
+
+  /* Warm, quiet scrollbars so long ledgers do not look like a terminal. */
+  * {
+    scrollbar-color: var(--line-strong) transparent;
   }
 }
 
 @layer components {
+  /* Surfaces: 1px hairline, no shadow anywhere. */
   .card {
-    @apply rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900;
+    @apply bg-surface border border-line rounded-card;
   }
 
-  .btn {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition
-      disabled:cursor-not-allowed disabled:opacity-50;
+  .hairline {
+    @apply border-t border-line;
   }
 
-  /* Variants are combined with .btn at the call site (Button component). */
-  .btn-primary {
-    @apply bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800
-      dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:active:bg-indigo-300 dark:text-slate-950;
-  }
-
-  .btn-secondary {
-    @apply border border-slate-300 bg-white text-slate-800 hover:bg-slate-100
-      dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800;
-  }
-
-  .btn-ghost {
-    @apply text-slate-700 hover:bg-slate-200/70 dark:text-slate-200 dark:hover:bg-slate-800/70;
-  }
-
-  .btn-danger {
-    @apply bg-rose-600 text-white hover:bg-rose-700 dark:bg-rose-500 dark:hover:bg-rose-400;
-  }
-
-  .btn-sm {
-    @apply min-h-9 rounded-lg px-3 py-1.5 text-xs;
-  }
-
-  .input {
-    @apply block w-full min-h-11 rounded-xl border border-slate-300 bg-white px-3 py-2 text-base text-slate-900
-      placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
-      dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500
-      dark:focus:border-indigo-400 dark:focus:ring-indigo-900/60;
+  .eyebrow {
+    @apply font-mono text-eyebrow uppercase text-muted;
   }
 
   .label {
-    @apply block text-sm font-medium text-slate-700 dark:text-slate-300;
+    @apply block text-body font-medium text-ink;
   }
 
   .hint {
-    @apply text-xs text-slate-500 dark:text-slate-400;
+    @apply text-caption text-muted;
   }
 
-  .badge {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  /* ── Buttons: one primary per screen, everything else outline or ghost ── */
+
+  .btn {
+    @apply inline-flex h-9 items-center justify-center gap-2 rounded-control px-3.5
+      text-body font-medium transition
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply bg-btn text-btn-ink hover:opacity-90;
+  }
+
+  .btn-outline {
+    @apply border border-line-strong text-ink hover:bg-raised;
+  }
+
+  .btn-ghost {
+    @apply text-ink hover:bg-raised;
+  }
+
+  .btn-danger {
+    @apply border text-incorrect border-incorrect hover:bg-incorrect/8;
+  }
+
+  /* Solid red is reserved for the confirm step inside a dialog. */
+  .btn-danger-solid {
+    @apply bg-incorrect text-canvas hover:opacity-90;
+  }
+
+  .btn-sm {
+    @apply h-7.5 px-2.5 text-caption;
+  }
+
+  /* ── Inputs ─────────────────────────────────────────────────────────── */
+
+  .input {
+    @apply block w-full min-h-9 rounded-control border border-line bg-inset px-3 py-2
+      text-body text-ink placeholder:text-muted
+      focus:border-accent focus:outline-none
+      focus:ring-2 focus:ring-accent-soft;
+  }
+
+  /* Pasted question text is monospaced so Q:/A: structure stays readable. */
+  .input-mono {
+    @apply font-mono;
+  }
+
+  /* ── Chips, keycaps, nav ────────────────────────────────────────────── */
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-chip bg-raised px-1.5 py-0.5
+      font-mono text-eyebrow text-muted;
+  }
+
+  .chip-accent {
+    @apply bg-accent-soft text-accent;
+  }
+
+  .keycap {
+    @apply rounded-keycap border-line bg-keycap text-eyebrow text-muted
+      inline-flex min-w-5 items-center justify-center border px-1.5 py-0.5
+      font-mono;
   }
 
   .nav-item {
-    @apply flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition;
-  }
-
-  .nav-item-active {
-    @apply bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300;
+    @apply relative flex items-center gap-3 rounded-control px-2.5 py-2 text-body
+      font-medium transition;
   }
 
   .nav-item-idle {
-    @apply text-slate-600 hover:bg-slate-200/60 dark:text-slate-300 dark:hover:bg-slate-800/60;
+    @apply text-muted hover:bg-raised hover:text-ink;
+  }
+
+  .nav-item-active {
+    @apply bg-raised text-ink;
+  }
+
+  /* 2px accent bar marks the active nav item; no colored fills. */
+  .nav-item-active::before {
+    content: '';
+    @apply absolute inset-y-1 left-0 w-0.5 rounded-full bg-accent;
+  }
+
+  .nav-item-mobile {
+    @apply relative flex min-h-14 flex-col items-center justify-center gap-0.5
+      px-1 py-1.5 text-eyebrow font-medium transition;
+  }
+
+  .nav-item-mobile-active {
+    @apply text-accent;
+  }
+
+  /* The accent bar mirrors the desktop sidebar so active never reads as color
+     alone. */
+  .nav-item-mobile-active::before {
+    content: '';
+    @apply bg-accent absolute left-1/2 top-0 h-0.5 w-5 -translate-x-1/2
+      rounded-full;
+  }
+
+  .nav-item-mobile-idle {
+    @apply text-muted;
+  }
+
+  /* ── Progress ───────────────────────────────────────────────────────── */
+
+  .progress-track {
+    @apply h-0.5 w-full overflow-hidden rounded-full bg-raised;
+  }
+
+  .progress-fill {
+    @apply h-full rounded-full bg-accent;
+  }
+
+  /* ── Data rows (results, settings, import) ──────────────────────────── */
+
+  .row {
+    @apply flex items-center justify-between gap-4 py-3;
+  }
+
+  .row + .row {
+    @apply border-t border-line;
+  }
+
+  .stat-number {
+    @apply font-display text-question font-medium text-ink;
+  }
+
+  .stat-label {
+    @apply font-mono text-eyebrow uppercase text-muted;
   }
 }
 
+/*
+ * Reduce motion, honored two ways: the OS preference, and the explicit
+ * Settings toggle that puts `.reduced-motion` on <html>.
+ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -116,26 +211,10 @@
   }
 }
 
-/* Users can also force reduced motion from Settings. */
 .reduced-motion *,
 .reduced-motion *::before,
 .reduced-motion *::after {
   animation-duration: 0.001ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.001ms !important;
-}
-
-@keyframes quizeasy-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.animate-fade-in {
-  animation: quizeasy-fade-in 0.18s ease-out;
 }
