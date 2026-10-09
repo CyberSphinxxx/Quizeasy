@@ -48,7 +48,7 @@ export function CopyButton({
           if (ok) {
             setCopied(true);
             toast('Prompt copied. Paste it into your AI tool.', 'success');
-            window.setTimeout(() => setCopied(false), 2500);
+            window.setTimeout(() => setCopied(false), 1500);
           } else {
             toast(
               'Your browser blocked copying. Select the text and copy it manually.',
