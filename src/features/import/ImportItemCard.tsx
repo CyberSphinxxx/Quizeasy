@@ -17,9 +17,9 @@ const STATUS_META: Record<
   ReturnType<typeof itemStatus>,
   { label: string; tone: BadgeTone; icon: typeof CheckCircle2 }
 > = {
-  valid: { label: 'Ready', tone: 'success', icon: CheckCircle2 },
+  valid: { label: 'Ready', tone: 'correct', icon: CheckCircle2 },
   warning: { label: 'Check this', tone: 'warning', icon: TriangleAlert },
-  invalid: { label: 'Needs fixing', tone: 'danger', icon: CircleAlert },
+  invalid: { label: 'Needs fixing', tone: 'incorrect', icon: CircleAlert },
 };
 
 export function ImportItemCard({
@@ -75,13 +75,13 @@ export function ImportItemCard({
 
   return (
     <li
-      className={`card p-3 ${included ? '' : 'opacity-60'}`}
+      className={`card p-4 ${included ? '' : 'opacity-60'}`}
       data-testid={`import-item-${index}`}
       data-status={status}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+          <span className="font-mono text-eyebrow text-muted">
             #{index + 1}
           </span>
           <Badge tone={meta.tone}>
@@ -99,7 +99,7 @@ export function ImportItemCard({
           </Button>
           <Button
             size="sm"
-            variant={included ? 'secondary' : 'primary'}
+            variant={included ? 'ghost' : 'outline'}
             onClick={onToggleInclude}
             aria-pressed={!included}
           >
@@ -117,7 +117,7 @@ export function ImportItemCard({
             </label>
             <textarea
               id={`${fieldId}-prompt`}
-              className="input min-h-20"
+              className="input input-mono min-h-20"
               value={draft.prompt}
               onChange={(event) =>
                 setDraft((current) => ({
@@ -149,7 +149,7 @@ export function ImportItemCard({
             </label>
             <textarea
               id={`${fieldId}-wrong`}
-              className="input min-h-20"
+              className="input input-mono min-h-20"
               value={draft.wrongChoices.join('\n')}
               onChange={(event) =>
                 setDraft((current) => ({
@@ -165,7 +165,7 @@ export function ImportItemCard({
             </label>
             <textarea
               id={`${fieldId}-explanation`}
-              className="input min-h-16"
+              className="input input-mono min-h-16"
               value={draft.explanation ?? ''}
               onChange={(event) =>
                 setDraft((current) => ({
@@ -193,7 +193,7 @@ export function ImportItemCard({
           </div>
           <div className="flex justify-end gap-2">
             <Button
-              variant="secondary"
+              variant="outline"
               size="sm"
               onClick={() => setEditing(false)}
             >
@@ -206,20 +206,14 @@ export function ImportItemCard({
         </div>
       ) : (
         <div className="mt-2 flex flex-col gap-2">
-          <p className="whitespace-pre-wrap text-sm font-medium">
+          <p className="text-body whitespace-pre-wrap font-medium">
             {item.prompt || (
-              <span className="text-rose-700 dark:text-rose-300">
-                (no question text)
-              </span>
+              <span className="text-incorrect">(no question text)</span>
             )}
           </p>
-          <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-200">
-            <span className="font-semibold">Answer:</span>{' '}
-            {item.answer || (
-              <span className="text-rose-700 dark:text-rose-300">
-                (missing)
-              </span>
-            )}
+          <p className="text-body text-muted whitespace-pre-wrap">
+            <span className="font-medium text-ink">Answer:</span>{' '}
+            {item.answer || <span className="text-incorrect">(missing)</span>}
           </p>
           {item.wrongChoices.length > 0 ? (
             <ul className="flex flex-wrap gap-1.5">
@@ -231,15 +225,13 @@ export function ImportItemCard({
             </ul>
           ) : null}
           {item.explanation ? (
-            <p className="text-xs text-slate-600 dark:text-slate-300">
-              {item.explanation}
-            </p>
+            <p className="text-caption text-muted">{item.explanation}</p>
           ) : null}
           {item.tags.length > 0 ? (
             <ul className="flex flex-wrap gap-1.5">
               {item.tags.map((tag) => (
                 <li key={tag}>
-                  <Badge tone="info">#{tag}</Badge>
+                  <Badge tone="accent">#{tag}</Badge>
                 </li>
               ))}
             </ul>
@@ -249,10 +241,10 @@ export function ImportItemCard({
               {item.issues.map((issue, issueIndex) => (
                 <li
                   key={`${issue.code}-${issueIndex}`}
-                  className={`text-xs ${
+                  className={`text-caption ${
                     issue.severity === 'error'
-                      ? 'text-rose-700 dark:text-rose-300'
-                      : 'text-amber-700 dark:text-amber-300'
+                      ? 'text-incorrect'
+                      : 'text-warning'
                   }`}
                 >
                   {issue.severity === 'error' ? 'Error: ' : 'Note: '}
