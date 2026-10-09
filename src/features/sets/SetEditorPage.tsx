@@ -126,7 +126,7 @@ export function SetEditorPage() {
       />
 
       {data.skippedQuestions > 0 ? (
-        <p className="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
+        <p className="card text-body text-warning mb-4 flex items-start gap-2 px-4 py-3">
           {data.skippedQuestions} stored{' '}
           {data.skippedQuestions === 1 ? 'question was' : 'questions were'}{' '}
           unreadable and {data.skippedQuestions === 1 ? 'was' : 'were'} skipped.
@@ -150,7 +150,7 @@ export function SetEditorPage() {
               </Button>
               <Link
                 to={`/import?set=${data.set.id}`}
-                className="btn btn-secondary"
+                className="btn btn-outline"
               >
                 Paste multiple questions
               </Link>
@@ -166,7 +166,7 @@ export function SetEditorPage() {
             <div className="relative">
               <Search
                 aria-hidden="true"
-                className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+                className="text-muted pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2"
               />
               <input
                 id="question-search"
@@ -187,7 +187,7 @@ export function SetEditorPage() {
               title="No questions match that search"
               description={`Nothing matched "${query.trim()}" in this set.`}
               actions={
-                <Button variant="secondary" onClick={() => setQuery('')}>
+                <Button variant="outline" onClick={() => setQuery('')}>
                   Clear search
                 </Button>
               }
@@ -195,14 +195,16 @@ export function SetEditorPage() {
           ) : (
             <ul className="flex flex-col gap-2" data-testid="question-list">
               {visible.map((question) => (
-                <li key={question.id} className="card flex flex-col gap-2 p-3">
-                  <p className="text-sm font-medium">{question.prompt}</p>
-                  <p className="text-sm text-slate-700 dark:text-slate-200">
-                    <span className="font-semibold">Answer:</span>{' '}
+                <li key={question.id} className="card flex flex-col gap-2 p-4">
+                  <p className="text-card font-display font-medium">
+                    {question.prompt}
+                  </p>
+                  <p className="text-body text-muted">
+                    <span className="font-medium text-ink">Answer:</span>{' '}
                     {question.answer}
                   </p>
                   {question.wrongChoices.length > 0 ? (
-                    <p className="hint">
+                    <p className="text-caption text-muted">
                       Wrong choices:{' '}
                       {truncate(question.wrongChoices.join(' · '), 120)}
                     </p>
@@ -211,7 +213,7 @@ export function SetEditorPage() {
                     <ul className="flex flex-wrap gap-1.5">
                       {question.tags.map((tag) => (
                         <li key={tag}>
-                          <Badge tone="info">#{tag}</Badge>
+                          <Badge tone="accent">#{tag}</Badge>
                         </li>
                       ))}
                     </ul>
@@ -252,7 +254,7 @@ export function SetEditorPage() {
                       variant="ghost"
                       onClick={() => setPendingDelete(question)}
                       aria-label={`Delete question: ${truncate(question.prompt, 40)}`}
-                      className="text-rose-700 hover:bg-rose-100 dark:text-rose-300 dark:hover:bg-rose-950"
+                      className="text-incorrect hover:bg-incorrect/8"
                     >
                       <Trash2 aria-hidden="true" className="size-4" />
                       Delete
@@ -266,7 +268,7 @@ export function SetEditorPage() {
           {filtered.length > visibleCount ? (
             <div className="mt-4">
               <Button
-                variant="secondary"
+                variant="outline"
                 onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
               >
                 Show {Math.min(PAGE_SIZE, filtered.length - visibleCount)} more
