@@ -1,0 +1,184 @@
+/*
+ * Paper Ledger — the single source of truth for Quizeasy's visual language.
+ *
+ * Everything visual (color, radius, type, motion) is defined here once. No
+ * component may hard-code a color, radius, font size or shadow: use the tokens
+ * or the utilities Tailwind generates from them below.
+ *
+ * Fonts are self-hosted (latin-only subsets) so the app renders in its real
+ * typefaces offline and never sends a request to a third-party font host.
+ */
+
+/* ── Fonts ─────────────────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: 'Fraunces Variable';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('@fontsource-variable/inter/files/inter-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Variable';
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url('@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+/* ── Tokens: light (default) ───────────────────────────────────────────── */
+
+:root {
+  color-scheme: light;
+
+  --canvas: #f6f2ea;
+  --sidebar: #efe9dd;
+  --surface: #fffdf8;
+  --inset: #fbf9f4;
+  --raised: #ece5d6;
+  --line: #ddd4c2;
+  --line-strong: #c9bfa9;
+
+  --ink: #1d1a15;
+  --muted: #6f6555;
+
+  /* Primary button: solid ink. */
+  --btn: #1d1a15;
+  --btn-ink: #fbf9f4;
+
+  --accent: #2f6b4f;
+  --accent-soft: #e3ede6;
+
+  --correct: #2f6b4f;
+  --incorrect: #a3402f;
+  /* Deepened from #8a6a1c so warning text clears 4.5:1 on every paper
+     surface, including --raised and --sidebar. */
+  --warning: #7d5f14;
+
+  --keycap: #fffdf8;
+  /* Scrim behind modals: warm ink, never blue-black. */
+  --scrim: rgb(29 26 21 / 0.4);
+}
+
+/* ── Tokens: dark ("warm ink") ─────────────────────────────────────────── */
+
+.dark {
+  color-scheme: dark;
+
+  --canvas: #161310;
+  --sidebar: #1b1713;
+  --surface: #1f1b16;
+  --inset: #14110e;
+  --raised: #2a251e;
+  --line: #342e25;
+  --line-strong: #4a4235;
+
+  --ink: #f1ebdf;
+  --muted: #a89d8a;
+
+  --btn: #f1ebdf;
+  --btn-ink: #161310;
+
+  --accent: #7fbf9b;
+  --accent-soft: #1f2e26;
+
+  --correct: #7fbf9b;
+  --incorrect: #e08a76;
+  --warning: #d9b25a;
+
+  --keycap: #2a251e;
+  --scrim: rgb(0 0 0 / 0.6);
+}
+
+/* ── Tailwind bridge ──────────────────────────────────────────────────── */
+
+/*
+ * `inline` keeps the utilities pointing at the variables above, so flipping
+ * `.dark` on <html> re-themes the whole app without rebuilding any CSS.
+ */
+@theme inline {
+  /* Surfaces step up in lightness; hierarchy never comes from shadow. */
+  --color-canvas: var(--canvas);
+  --color-sidebar: var(--sidebar);
+  --color-surface: var(--surface);
+  --color-inset: var(--inset);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-btn: var(--btn);
+  --color-btn-ink: var(--btn-ink);
+
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-correct: var(--correct);
+  --color-incorrect: var(--incorrect);
+  --color-warning: var(--warning);
+
+  --color-keycap: var(--keycap);
+  --color-scrim: var(--scrim);
+
+  /* The shell switches from sidebar to bottom tab bar here. */
+  --breakpoint-nav: 880px;
+
+  /* Four radii only, plus the keycap's documented 4px. */
+  --radius-card: 8px;
+  --radius-control: 6px;
+  --radius-chip: 5px;
+  --radius-keycap: 4px;
+
+  /* Type. */
+  --font-display: 'Fraunces Variable', Georgia, 'Times New Roman', Times, serif;
+  --font-sans:
+    'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:
+    'JetBrains Mono Variable', ui-monospace, SFMono-Regular, 'SF Mono', Menlo,
+    Consolas, 'Liberation Mono', monospace;
+
+  --text-eyebrow: 11px;
+  --text-eyebrow--line-height: 1.4;
+  --text-eyebrow--letter-spacing: 0.08em;
+  --text-caption: 12.5px;
+  --text-caption--line-height: 1.5;
+  --text-body: 14px;
+  --text-body--line-height: 1.55;
+  --text-card: 15px;
+  --text-card--line-height: 1.45;
+  --text-question: 20px;
+  --text-question--line-height: 1.4;
+  --text-title: 32px;
+  --text-title--line-height: 1.15;
+  --text-title--letter-spacing: -0.01em;
+
+  /* The only two motions in the app. */
+  --default-transition-duration: 120ms;
+  --default-transition-timing-function: ease-out;
+}
