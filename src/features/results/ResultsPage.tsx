@@ -132,7 +132,7 @@ export function ResultsPage() {
         title="That session is gone"
         description="Study sessions are stored with their set. It may have been deleted."
         actions={
-          <Link to="/" className="btn btn-primary">
+          <Link to="/" className="btn btn-outline">
             Back to library
           </Link>
         }
@@ -146,34 +146,38 @@ export function ResultsPage() {
   return (
     <div>
       <PageHeader
+        eyebrow={STUDY_MODE_LABELS[session.mode]}
         title={isComplete ? 'Results' : 'Results so far'}
-        subtitle={`${STUDY_MODE_LABELS[session.mode]} · started ${formatDateTime(
-          session.startedAt,
-        )}${isComplete ? '' : ' · not finished'}`}
+        subtitle={`Started ${formatDateTime(session.startedAt)}${
+          isComplete ? '' : ' · not finished'
+        }`}
         backTo={`/sets/${setId}`}
         backLabel="Back to set"
       />
 
-      <section className="card mb-5 flex flex-col gap-4 p-5" aria-label="Score">
+      <section className="card mb-5 flex flex-col gap-5 p-5" aria-label="Score">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-4xl font-bold" data-testid="results-percentage">
+            <p
+              className="font-display text-title font-medium"
+              data-testid="results-percentage"
+            >
               {summary.percentage}%
             </p>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
+            <p className="text-body text-muted">
               {summary.correct} of {summary.totalItems}{' '}
               {pluralize(summary.totalItems, 'question')} correct
             </p>
           </div>
           <ul className="flex flex-wrap gap-2">
             <li>
-              <Badge tone="success">
+              <Badge tone="correct">
                 <CircleCheck aria-hidden="true" className="size-3.5" />
                 {summary.correct} correct
               </Badge>
             </li>
             <li>
-              <Badge tone="danger">
+              <Badge tone="incorrect">
                 <X aria-hidden="true" className="size-3.5" />
                 {summary.incorrect} incorrect
               </Badge>
@@ -193,22 +197,26 @@ export function ResultsPage() {
           label="Score"
         />
 
-        <ul className="flex flex-wrap gap-3 text-sm">
+        <dl className="border-line flex flex-col border-t pt-2">
           {Object.entries(summary.byMode).map(([mode, score]) =>
             score.total > 0 ? (
-              <li key={mode} className="text-slate-600 dark:text-slate-300">
-                <span className="font-medium capitalize">
+              <div key={mode} className="row">
+                <dt className="text-body text-ink">
                   {STUDY_MODE_LABELS[mode as keyof typeof STUDY_MODE_LABELS]}
-                </span>
-                : {score.correct}/{score.total}
-              </li>
+                </dt>
+                <dd className="font-mono text-caption text-muted">
+                  {score.correct}/{score.total}
+                </dd>
+              </div>
             ) : null,
           )}
-          <li className="text-slate-600 dark:text-slate-300">
-            <span className="font-medium">Answered</span>: {summary.answered}/
-            {summary.totalItems}
-          </li>
-        </ul>
+          <div className="row">
+            <dt className="text-body text-ink">Answered</dt>
+            <dd className="font-mono text-caption text-muted">
+              {summary.answered}/{summary.totalItems}
+            </dd>
+          </div>
+        </dl>
       </section>
 
       <div className="mb-5 flex flex-wrap gap-2">
@@ -227,11 +235,12 @@ export function ResultsPage() {
                 )}`}
           </Button>
         ) : (
-          <p className="w-full rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-100">
+          <p className="card text-body text-correct flex w-full items-center gap-2 px-4 py-3">
+            <CircleCheck aria-hidden="true" className="size-4" />
             No mistakes to retry — nice work.
           </p>
         )}
-        <Link to={`/sets/${setId}/study`} className="btn btn-secondary">
+        <Link to={`/sets/${setId}/study`} className="btn btn-outline">
           <RefreshCw aria-hidden="true" className="size-4" />
           Study again
         </Link>
@@ -241,15 +250,15 @@ export function ResultsPage() {
       </div>
 
       <section aria-label="Missed questions" className="mb-5">
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        <h2 className="eyebrow mb-3">
           Questions to review ({summary.missedItems.length})
         </h2>
         {summary.missedItems.length === 0 ? (
-          <p className="text-sm text-slate-600 dark:text-slate-300">
+          <p className="text-body text-muted">
             Every question was answered correctly.
           </p>
         ) : (
-          <ul className="flex flex-col gap-2">
+          <ul className="card flex flex-col p-2">
             {summary.missedItems.map((item) => {
               const question = questions.find(
                 (candidate) => candidate.id === item.questionId,
@@ -258,12 +267,15 @@ export function ResultsPage() {
                 (candidate) => candidate.questionId === item.questionId,
               );
               return (
-                <li key={item.questionId} className="card p-4">
-                  <p className="text-sm font-medium">
+                <li
+                  key={item.questionId}
+                  className="border-line first:border-t-0 flex flex-col gap-1 border-t px-3 py-4"
+                >
+                  <p className="text-card font-display font-medium">
                     {question?.prompt ?? 'This question was deleted.'}
                   </p>
-                  <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">
-                    <span className="font-semibold">Answer:</span>{' '}
+                  <p className="text-body text-ink">
+                    <span className="font-medium">Answer:</span>{' '}
                     {question?.answer ?? '—'}
                   </p>
                   {plan.find((entry) => entry.questionId === item.questionId)
@@ -276,12 +288,12 @@ export function ResultsPage() {
                     </p>
                   ) : null}
                   {attempt?.response ? (
-                    <p className="mt-1 text-sm text-rose-700 dark:text-rose-300">
+                    <p className="text-body text-incorrect">
                       You answered: {attempt.response}
                     </p>
                   ) : null}
                   {question?.explanation ? (
-                    <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                    <p className="text-caption text-muted">
                       {question.explanation}
                     </p>
                   ) : null}
@@ -292,11 +304,11 @@ export function ResultsPage() {
         )}
       </section>
 
-      <details className="card p-4">
-        <summary className="cursor-pointer text-sm font-medium">
+      <details className="card p-5">
+        <summary className="text-body cursor-pointer font-medium">
           Review every question in this session
         </summary>
-        <ul className="mt-3 flex flex-col divide-y divide-slate-200 dark:divide-slate-800">
+        <ul className="mt-3 flex flex-col">
           {plan.map((item) => {
             const question = questions.find(
               (candidate) => candidate.id === item.questionId,
@@ -312,20 +324,23 @@ export function ResultsPage() {
                   ? 'skipped'
                   : 'incorrect';
             return (
-              <li key={item.questionId} className="flex flex-col gap-1 py-2">
-                <p className="text-sm font-medium">
+              <li
+                key={item.questionId}
+                className="border-line flex flex-col gap-1 border-t py-3 first:border-t-0"
+              >
+                <p className="text-body font-medium">
                   {question?.prompt ?? 'Deleted question'}
                 </p>
-                <p className="text-xs text-slate-600 dark:text-slate-300">
+                <p className="text-caption text-muted">
                   Answer: {question?.answer ?? '—'}
                 </p>
                 <span>
                   <Badge
                     tone={
                       outcome === 'correct'
-                        ? 'success'
+                        ? 'correct'
                         : outcome === 'incorrect'
-                          ? 'danger'
+                          ? 'incorrect'
                           : 'neutral'
                     }
                   >
