@@ -20,7 +20,7 @@ export function ImportCountsRow({
   return (
     <ul className="flex flex-wrap items-center gap-2" data-testid={testId}>
       <li>
-        <Badge tone="success">
+        <Badge tone="correct">
           <CheckCircle2 aria-hidden="true" className="size-3.5" />
           {counts.ready} ready
         </Badge>
@@ -32,7 +32,7 @@ export function ImportCountsRow({
         </Badge>
       </li>
       <li>
-        <Badge tone="danger">
+        <Badge tone="incorrect">
           <CircleAlert aria-hidden="true" className="size-3.5" />
           {counts.needsFix} need fixing
         </Badge>
@@ -60,14 +60,14 @@ export function ImportSummary({
 
   return (
     <section
-      className="card flex flex-col gap-3 p-4"
+      className="card flex flex-col gap-3 p-5"
       aria-label="Import summary"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-base">
+        <h2 className="text-card font-display font-medium">
           {counts.total} {counts.total === 1 ? 'question' : 'questions'} found
         </h2>
-        <Badge tone="info">
+        <Badge tone="accent">
           <Info aria-hidden="true" className="size-3.5" />
           {PARSE_FORMAT_LABELS[result.detectedFormat]}
         </Badge>
@@ -76,25 +76,19 @@ export function ImportSummary({
       <ImportCountsRow counts={counts} />
 
       {hasGlobalIssues ? (
-        <details className="rounded-xl border border-slate-200 p-3 text-sm dark:border-slate-800">
-          <summary className="cursor-pointer font-medium">
+        <details className="rounded-control border-line border p-3">
+          <summary className="text-body cursor-pointer font-medium">
             {errors.length} {errors.length === 1 ? 'problem' : 'problems'} to
             look at
           </summary>
           <ul className="mt-2 flex flex-col gap-1">
             {errors.slice(0, 20).map((message, index) => (
-              <li
-                key={`error-${index}`}
-                className="text-rose-700 dark:text-rose-300"
-              >
+              <li key={`error-${index}`} className="text-body text-incorrect">
                 {message}
               </li>
             ))}
             {warnings.slice(0, 20).map((message, index) => (
-              <li
-                key={`warning-${index}`}
-                className="text-amber-700 dark:text-amber-300"
-              >
+              <li key={`warning-${index}`} className="text-body text-warning">
                 {message}
               </li>
             ))}
