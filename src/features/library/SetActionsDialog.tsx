@@ -94,7 +94,7 @@ export function SetActionsDialog({
       >
         <div className="flex flex-col gap-2">
           <Button
-            variant="secondary"
+            variant="outline"
             onClick={() => {
               onClose();
               navigate(`/sets/${set.id}`);
@@ -104,7 +104,7 @@ export function SetActionsDialog({
             Open set
           </Button>
           <Button
-            variant="secondary"
+            variant="outline"
             onClick={() => {
               onClose();
               navigate(`/sets/${set.id}/study`);
@@ -113,11 +113,11 @@ export function SetActionsDialog({
             <Play aria-hidden="true" className="size-4" />
             Study
           </Button>
-          <Button variant="secondary" onClick={handleExport} disabled={busy}>
+          <Button variant="outline" onClick={handleExport} disabled={busy}>
             <Download aria-hidden="true" className="size-4" />
             Export as .quizeasy.json
           </Button>
-          <Button variant="secondary" onClick={handleDuplicate} disabled={busy}>
+          <Button variant="outline" onClick={handleDuplicate} disabled={busy}>
             <Copy aria-hidden="true" className="size-4" />
             Duplicate set
           </Button>
