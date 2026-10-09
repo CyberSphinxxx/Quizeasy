@@ -77,7 +77,7 @@ export function BackupRestoreButton({
         aria-label="Restore from backup file"
       />
       <Button
-        variant="secondary"
+        variant="outline"
         onClick={() => inputRef.current?.click()}
         disabled={busy}
       >
