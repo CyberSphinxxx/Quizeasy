@@ -23,6 +23,10 @@
           "type": "string",
           "minLength": 1
         },
+        "schemaVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
         "title": {
           "type": "string",
           "minLength": 1
@@ -106,6 +110,19 @@
           },
           "updatedAt": {
             "type": "string"
+          },
+          "source": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "importedAt": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
           }
         },
         "additionalProperties": true
