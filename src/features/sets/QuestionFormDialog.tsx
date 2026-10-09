@@ -110,7 +110,7 @@ export function QuestionFormDialog({
       size="lg"
       footer={
         <>
-          <Button variant="secondary" onClick={handleClose} disabled={busy}>
+          <Button variant="outline" onClick={handleClose} disabled={busy}>
             Cancel
           </Button>
           <Button
@@ -139,8 +139,8 @@ export function QuestionFormDialog({
           data-testid="question-answer"
         />
 
-        <details className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
-          <summary className="cursor-pointer text-sm font-medium">
+        <details className="rounded-control border-line border p-3">
+          <summary className="text-body cursor-pointer font-medium">
             More options (accepted answers, wrong choices, explanation, tags)
           </summary>
           <div className="mt-3 flex flex-col gap-3">
