@@ -29,6 +29,25 @@ const MODE_OPTIONS: { value: StudyMode; label: string }[] = (
   ['flashcard', 'multiple-choice', 'identification', 'mixed'] as StudyMode[]
 ).map((mode) => ({ value: mode, label: STUDY_MODE_LABELS[mode] }));
 
+/** A bordered group: mono eyebrow on top, hairline-separated rows inside. */
+function SettingsGroup({
+  eyebrow,
+  label,
+  children,
+}: {
+  eyebrow: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="card p-5" aria-label={label}>
+      {/* A real heading so the group is still navigable by screen readers. */}
+      <h2 className="eyebrow mb-3">{eyebrow}</h2>
+      <div className="flex flex-col">{children}</div>
+    </section>
+  );
+}
+
 export function SettingsPage() {
   const { preferences, update } = usePreferences();
   const counts = useAsyncData(() => repositories.sets.counts(), []);
@@ -70,53 +89,58 @@ export function SettingsPage() {
   }, [counts]);
 
   const data = counts.data;
+  const storedTotal =
+    (data?.sets ?? 0) +
+    (data?.questions ?? 0) +
+    (data?.sessions ?? 0) +
+    (data?.attempts ?? 0);
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title="Settings"
-        subtitle="Everything here is stored on this device only."
-      />
+      <PageHeader eyebrow="Preferences" title="Settings" />
 
-      <section className="card flex flex-col gap-4 p-4" aria-label="Appearance">
-        <h2 className="text-base">Appearance</h2>
-        <SegmentedControl
-          label="Theme"
-          options={THEME_OPTIONS}
-          value={preferences.theme}
-          onChange={(theme) => void update({ theme })}
-        />
+      <SettingsGroup eyebrow="APPEARANCE" label="Appearance">
+        <div className="row items-start">
+          <SegmentedControl
+            label="Theme"
+            options={THEME_OPTIONS}
+            value={preferences.theme}
+            onChange={(theme) => void update({ theme })}
+          />
+        </div>
         <Toggle
           label="Reduce motion"
-          description="Turns off card flips and transitions."
+          description="Turns off transitions and reveals."
           checked={preferences.reducedMotion}
           onChange={(reducedMotion) => void update({ reducedMotion })}
         />
-      </section>
+      </SettingsGroup>
 
-      <section
-        className="card flex flex-col gap-4 p-4"
-        aria-label="Study defaults"
-      >
-        <h2 className="text-base">Study defaults</h2>
-        <SegmentedControl
-          label="Default study mode"
-          options={MODE_OPTIONS}
-          value={preferences.defaultMode}
-          onChange={(mode) => void update({ defaultMode: mode })}
-        />
-        <p className="hint">
-          {STUDY_MODE_DESCRIPTIONS[preferences.defaultMode]}
-        </p>
-        <SegmentedControl
-          label="Default feedback"
-          options={[
-            { value: 'immediate', label: 'Study mode' },
-            { value: 'delayed', label: 'Test mode' },
-          ]}
-          value={preferences.defaultFeedback}
-          onChange={(feedback) => void update({ defaultFeedback: feedback })}
-        />
+      <SettingsGroup eyebrow="STUDY DEFAULTS" label="Study defaults">
+        <div className="row items-start">
+          <div className="flex flex-col gap-1.5">
+            <SegmentedControl
+              label="Default study mode"
+              options={MODE_OPTIONS}
+              value={preferences.defaultMode}
+              onChange={(mode) => void update({ defaultMode: mode })}
+            />
+            <p className="hint">
+              {STUDY_MODE_DESCRIPTIONS[preferences.defaultMode]}
+            </p>
+          </div>
+        </div>
+        <div className="row items-start">
+          <SegmentedControl
+            label="Default feedback"
+            options={[
+              { value: 'immediate', label: 'Study mode' },
+              { value: 'delayed', label: 'Test mode' },
+            ]}
+            value={preferences.defaultFeedback}
+            onChange={(feedback) => void update({ defaultFeedback: feedback })}
+          />
+        </div>
         <Toggle
           label="Shuffle questions by default"
           checked={preferences.defaultShuffleQuestions}
@@ -127,31 +151,36 @@ export function SettingsPage() {
           checked={preferences.defaultShuffleChoices}
           onChange={(value) => void update({ defaultShuffleChoices: value })}
         />
-      </section>
+      </SettingsGroup>
 
-      <section className="card flex flex-col gap-4 p-4" aria-label="Your data">
-        <h2 className="text-base">Your data</h2>
-        <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
-          <div>
-            <dt className="hint">Sets</dt>
-            <dd className="font-semibold">{data?.sets ?? '—'}</dd>
-          </div>
-          <div>
-            <dt className="hint">Questions</dt>
-            <dd className="font-semibold">{data?.questions ?? '—'}</dd>
-          </div>
-          <div>
-            <dt className="hint">Sessions</dt>
-            <dd className="font-semibold">{data?.sessions ?? '—'}</dd>
-          </div>
-          <div>
-            <dt className="hint">Answers recorded</dt>
-            <dd className="font-semibold">{data?.attempts ?? '—'}</dd>
-          </div>
-        </dl>
+      <SettingsGroup eyebrow="YOUR DATA" label="Your data">
+        {counts.loading ? (
+          <p className="hint py-3">Counting what is stored…</p>
+        ) : storedTotal === 0 ? (
+          <p className="hint py-3">Nothing stored yet.</p>
+        ) : (
+          <dl className="border-line mt-1 grid grid-cols-2 gap-x-4 gap-y-4 border-t pt-4 sm:grid-cols-4">
+            <div className="flex flex-col gap-1">
+              <dd className="stat-number">{data?.sets ?? 0}</dd>
+              <dt className="stat-label">Sets</dt>
+            </div>
+            <div className="flex flex-col gap-1">
+              <dd className="stat-number">{data?.questions ?? 0}</dd>
+              <dt className="stat-label">Questions</dt>
+            </div>
+            <div className="flex flex-col gap-1">
+              <dd className="stat-number">{data?.sessions ?? 0}</dd>
+              <dt className="stat-label">Sessions</dt>
+            </div>
+            <div className="flex flex-col gap-1">
+              <dd className="stat-number">{data?.attempts ?? 0}</dd>
+              <dt className="stat-label">Answers</dt>
+            </div>
+          </dl>
+        )}
 
-        <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" onClick={() => void handleExportAll()}>
+        <div className="border-line mt-3 flex flex-wrap items-start gap-2 border-t pt-4">
+          <Button variant="outline" onClick={() => void handleExportAll()}>
             <Download aria-hidden="true" className="size-4" />
             Export all data
           </Button>
@@ -162,28 +191,25 @@ export function SettingsPage() {
           </Button>
         </div>
 
-        <p className="hint">
+        <p className="hint pt-3">
           Restoring a backup merges it into your library. Records with matching
           IDs are given new IDs instead of overwriting anything you already
           have.
         </p>
-      </section>
+      </SettingsGroup>
 
-      <section
-        className="card flex flex-col gap-3 p-4"
-        aria-label="AI providers"
-      >
-        <h2 className="flex items-center gap-2 text-base">
-          <KeyRound aria-hidden="true" className="size-4" />
-          AI providers (not enabled yet)
+      <SettingsGroup eyebrow="AI PROVIDERS" label="AI providers">
+        <h2 className="text-card flex items-center gap-2 font-medium">
+          <KeyRound aria-hidden="true" className="text-muted size-4" />
+          Not enabled yet
         </h2>
-        <p className="text-sm text-slate-700 dark:text-slate-200">
+        <p className="text-body text-muted mt-2 max-w-prose">
           Quizeasy works fully offline and never sends your notes anywhere. A
           future release will let you connect your own key for providers such as
           OpenAI, Gemini, Anthropic, OpenRouter, or a compatible custom
           endpoint.
         </p>
-        <ul className="list-disc pl-5 text-sm text-slate-600 dark:text-slate-300">
+        <ul className="text-body text-muted mt-3 flex list-disc flex-col gap-1 pl-5">
           <li>Keys would be stored per device and can be session-only.</li>
           <li>
             Browser storage cannot be treated as a secure secret store, so
@@ -193,28 +219,27 @@ export function SettingsPage() {
             Until then, use the AI guide to copy prompts into your own tool.
           </li>
         </ul>
-        <div>
-          <Link to="/guide" className="btn btn-secondary">
+        <div className="pt-4">
+          <Link to="/guide" className="btn btn-outline">
             Open the AI guide
           </Link>
         </div>
-      </section>
+      </SettingsGroup>
 
-      <section className="card flex flex-col gap-2 p-4" aria-label="About">
-        <h2 className="flex items-center gap-2 text-base">
-          <ShieldCheck aria-hidden="true" className="size-4" />
+      <SettingsGroup eyebrow="ABOUT" label="About">
+        <h2 className="text-card flex items-center gap-2 font-medium">
+          <ShieldCheck aria-hidden="true" className="text-muted size-4" />
           Privacy
         </h2>
-        <p className="text-sm text-slate-700 dark:text-slate-200">
-          Your sets, questions, and study history live in this browser&apos;s
-          IndexedDB storage. There is no account, no server, and no telemetry.
-          Export a backup before clearing browser data.
+        <p className="text-body text-muted mt-2 max-w-prose">
+          Export a backup before clearing browser data. Restoring one merges it
+          back and never overwrites what is already here.
         </p>
-        <p className="hint">
+        <p className="hint pt-3">
           App version 1.0.0 · data schema v{SCHEMA_VERSION} · local-first and
           MIT licensed.
         </p>
-      </section>
+      </SettingsGroup>
 
       <ConfirmDialog
         open={confirmClear}
