@@ -18,7 +18,7 @@ const GIT_ENV = {
 };
 
 function run(cmd, env = GIT_ENV) {
-  return execSync(cmd, { encoding: 'utf8', env }).trim();
+  return execSync(cmd, { encoding: 'utf8', env });
 }
 
 // Explicit mapping for known project files to guarantee pristine commit messages
@@ -33,6 +33,7 @@ const EXACT_MESSAGES = {
   'package.json': 'chore: define project dependencies, scripts, and package metadata',
   'package-lock.json': 'chore: lock dependency versions in package-lock',
   'playwright.config.ts': 'test: configure Playwright end-to-end testing suite',
+  'vercel.json': 'chore(vercel): configure Vercel deployment, SPA rewrites, and caching headers',
   'index.html': 'feat: create main HTML entrypoint with metadata and PWA manifest link',
 
   // GitHub & Community
@@ -89,6 +90,7 @@ const EXACT_MESSAGES = {
 
   // App Shell & Store & Styles
   'src/styles/index.css': 'style: define global CSS variables, typography, and base theme',
+  'src/styles/theme.css': 'style: define theme color tokens and elevation classes',
   'src/main.tsx': 'feat: initialize React application root with providers',
   'src/app/App.tsx': 'feat(app): create main application shell and router outlet',
   'src/app/routes.tsx': 'feat(app): configure application client-side route hierarchy',
@@ -160,6 +162,7 @@ const EXACT_MESSAGES = {
   'src/components/layout/AppShell.tsx': 'feat(layout): implement responsive AppShell with header and navigation',
   'src/components/layout/PageHeader.tsx': 'feat(layout): implement PageHeader component with back navigation',
   'src/components/layout/navigation.ts': 'feat(layout): define navigation items and path definitions',
+  'src/components/layout/useNavShortcuts.ts': 'feat(layout): implement keyboard shortcuts hook for global app navigation',
 
   // Features
   'src/features/shared/CopyButton.tsx': 'feat(shared): implement clipboard copy button with feedback toast',
@@ -168,6 +171,7 @@ const EXACT_MESSAGES = {
   'src/features/library/LibraryPage.tsx': 'feat(library): build library page for browsing and managing quiz sets',
   'src/features/library/SetCard.tsx': 'feat(library): render quiz set card with study stats and actions',
   'src/features/library/SetActionsDialog.tsx': 'feat(library): implement set actions dialog for export, edit, and deletion',
+  'src/features/library/useSetSignals.ts': 'feat(library): implement reactive set signals hook for library state',
   'src/features/sets/SetDetailPage.tsx': 'feat(sets): build set detail overview page with question list',
   'src/features/sets/SetEditorPage.tsx': 'feat(sets): implement question bank and set editor interface',
   'src/features/sets/SetEditorPage.test.tsx': 'test(sets): add unit tests for set editor and question creation',
@@ -263,6 +267,7 @@ function generateFallbackMessage(normalizedPath) {
 function getPriority(filePath) {
   if (filePath === 'LICENSE') return 10;
   if (filePath === '.gitignore' || filePath === '.prettierrc.json' || filePath.startsWith('eslint.') || filePath.startsWith('tsconfig.') || filePath.startsWith('vite.') || filePath === 'playwright.config.ts') return 20;
+  if (filePath === 'vercel.json') return 22;
   if (filePath === 'package.json' || filePath === 'package-lock.json') return 25;
   if (filePath.startsWith('.github/')) return 30;
   if (filePath === 'CODE_OF_CONDUCT.md' || filePath === 'CONTRIBUTING.md' || filePath === 'SECURITY.md') return 40;
@@ -306,18 +311,24 @@ function getPriority(filePath) {
 
 // 1. Get uncommitted files
 const rawStatus = run('git status --porcelain -uall');
-if (!rawStatus) {
+if (!rawStatus.trim()) {
   console.log('✨ Working tree is already clean. Nothing to commit.');
   process.exit(0);
 }
 
-const lines = rawStatus.split('\n').filter(Boolean);
-const files = lines.map(line => {
-  const relative = line.slice(3).trim();
-  // Handle quoted paths from git
-  const unquoted = relative.replace(/^"(.*)"$/, '$1');
-  return unquoted.replace(/\\/g, '/');
-});
+const lines = rawStatus.split(/\r?\n/).filter(line => line.trim().length > 0);
+const files = lines
+  .map(line => {
+    // In git porcelain format, the first 2 characters are status flags (e.g. " M", "??")
+    // followed by a space, so the file path begins at index 3.
+    const relative = line.slice(3).trim();
+    // Handle quoted paths from git
+    const unquoted = relative.replace(/^"(.*)"$/, '$1');
+    return unquoted.replace(/\\/g, '/');
+  })
+  .filter(file => !file.toLowerCase().includes('freebuff'));
+
+console.log('🛡️ Verified: freebuff directory and files are excluded.\n');
 
 // Sort files logically
 files.sort((a, b) => {
@@ -348,7 +359,7 @@ for (const file of files) {
   // 2. Commit with strict author and committer metadata
   try {
     run(`git commit -m "${msg}" --author="${AUTHOR_STRING}" --no-verify`);
-    const shortHash = run('git rev-parse --short HEAD');
+    const shortHash = run('git rev-parse --short HEAD').trim();
     console.log(`[${count}/${files.length}] ✅ (${shortHash}) ${file} -> "${msg}"`);
   } catch (err) {
     console.error(`❌ Failed to commit ${file}:`, err.message);
