@@ -101,6 +101,7 @@ Use checkboxes. Keep this file updated during implementation.
 - [x] LICENSE included
 - [x] CONTRIBUTING included
 - [x] SECURITY included
+- [x] Vercel deployment ready (vercel.json, SPA rewrites, caching/security headers, .vercel gitignore)
 - [x] Definition of Done fully checked
 
 ## Deferred (explicitly out of scope for 1.0.0)
@@ -114,8 +115,20 @@ Not required by the MVP specification. Tracked here so nothing looks forgotten.
 - [ ] Account sync, collaboration, shared marketplace
 - [ ] Payments
 
+## Paper Ledger redesign
+
+- [x] One theme file: tokens for color, radius, type and the two allowed motions
+- [x] Self-hosted Fraunces / Inter / JetBrains Mono (latin subsets), offline-precached
+- [x] Primitives: button, card, input, segmented control, toggle, chip, progress bar, keycap
+- [x] Shell: 232px sidebar, `G`-chord nav shortcuts + keycap hints, bottom tab bar, one privacy line
+- [x] Every screen restyled: Settings, Library, Study index/setup/session, AI guide, Import, Results, set detail/editor, dialogs, toasts, empty and error states
+- [x] Zero hard-coded palette colors, shadows, gradients or blur left in `src`
+- [x] PWA manifest and `theme-color` moved onto the paper palette
+
 ## Follow-up polish (non-blocking, no functional impact)
 
+- [ ] Add a mastery indicator to library set cards. `SetWithStats` exposes only question and session counts, so a real percentage needs `src/data` work (excluded from the redesign).
+- [ ] Give Guide and Settings `G`-chord keycaps if they should be reachable from the keyboard too (only `G L`, `G I`, `G S` exist today, matching the hints shown).
 - [ ] Raise or silence the Vite 500 kB chunk-size warning (main chunk is 531 kB / 167 kB gzip)
 - [ ] Silence the 11 `react-refresh/only-export-components` warnings in `src/app/routes.tsx` (the rule does not recognize `React.lazy()` declarations)
 - [ ] Design proper app icons to replace the generated placeholder artwork
