@@ -9,14 +9,9 @@ export function NotFoundPage() {
       title="That page does not exist"
       description="The link may be out of date. Head back to your library to keep studying."
       actions={
-        <>
-          <Link to="/" className="btn btn-primary">
-            Go to library
-          </Link>
-          <Link to="/import" className="btn btn-secondary">
-            Paste questions
-          </Link>
-        </>
+        <Link to="/" className="btn btn-primary">
+          Go to Library
+        </Link>
       }
     />
   );
