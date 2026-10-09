@@ -1,9 +1,18 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { useLibrary } from '@/hooks/useLibrary';
+import { useSetSignals } from '@/features/library/useSetSignals';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { EmptyState, ErrorState, LoadingPanel } from '@/components/ui/Feedback';
+import { Badge } from '@/components/ui/Badge';
 import { formatRelativeDate, pluralize } from '@/lib/utils';
+import type { PresentationMode } from '@/domain/schemas/study';
+
+const MODE_LABELS: Record<PresentationMode, string> = {
+  flashcard: 'Flashcards',
+  'multiple-choice': 'Multiple choice',
+  identification: 'Identification',
+};
 
 export function StudyIndexPage() {
   const { data, loading, error, reload } = useLibrary();
@@ -11,12 +20,14 @@ export function StudyIndexPage() {
   const studyable = (data?.items ?? []).filter(
     (stats) => stats.questionCount > 0,
   );
+  const signals = useSetSignals(studyable.length > 0);
 
   return (
-    <div>
+    <div className="flex flex-col gap-6">
       <PageHeader
+        eyebrow="Study"
         title="Study"
-        subtitle="Pick a set to study as flashcards, multiple choice, identification, or a mixed quiz."
+        subtitle="Every mode reads the same saved questions."
       />
 
       {loading ? <LoadingPanel label="Loading your sets…" /> : null}
@@ -24,49 +35,64 @@ export function StudyIndexPage() {
 
       {!loading && !error && studyable.length === 0 ? (
         <EmptyState
-          icon={<BookOpen aria-hidden="true" className="size-6" />}
           title="Nothing to study yet"
-          description="Add questions to a set first. Paste text that already looks like questions and answers — Quizeasy handles the rest."
+          description="Add questions to a set first — then every mode here works on the same saved data."
           actions={
-            <>
-              <Link to="/import" className="btn btn-primary">
-                Paste questions
-              </Link>
-              <Link to="/" className="btn btn-secondary">
-                Go to library
-              </Link>
-            </>
+            <Link to="/" className="btn btn-outline">
+              Go to Library
+            </Link>
           }
         />
       ) : null}
 
       {studyable.length > 0 ? (
-        <ul className="flex flex-col gap-3" data-testid="study-set-list">
-          {studyable.map(({ set, questionCount }) => (
-            <li
-              key={set.id}
-              className="card flex flex-wrap items-center gap-3 p-4"
-            >
-              <div className="min-w-0 flex-1">
-                <h2 className="truncate text-base">
-                  <Link
-                    to={`/sets/${set.id}`}
-                    className="hover:text-indigo-700 dark:hover:text-indigo-300"
-                  >
-                    {set.title}
-                  </Link>
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {questionCount} {pluralize(questionCount, 'question')} ·{' '}
-                  {formatRelativeDate(set.lastStudiedAt)}
-                </p>
-              </div>
-              <Link to={`/sets/${set.id}/study`} className="btn btn-primary">
-                <Play aria-hidden="true" className="size-4" />
-                Study
-              </Link>
-            </li>
-          ))}
+        <ul className="card flex flex-col p-2" data-testid="study-set-list">
+          {studyable.map(({ set, questionCount }) => {
+            const modes = signals.modes[set.id] ?? [];
+            const lastMode = signals.lastMode[set.id];
+            return (
+              <li
+                key={set.id}
+                className="border-line first:border-t-0 flex flex-wrap items-center gap-3 border-t px-3 py-4"
+              >
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-card font-display truncate font-medium">
+                    <Link
+                      to={`/sets/${set.id}`}
+                      className="hover:text-accent transition"
+                    >
+                      {set.title}
+                    </Link>
+                  </h2>
+                  <p className="text-caption text-muted mt-1">
+                    {questionCount} {pluralize(questionCount, 'question')} ·{' '}
+                    {formatRelativeDate(set.lastStudiedAt)}
+                  </p>
+                  {modes.length > 0 ? (
+                    <ul className="mt-2 flex flex-wrap gap-1.5">
+                      {modes.map((mode) => (
+                        <li key={mode}>
+                          <Badge
+                            tone={mode === lastMode ? 'accent' : 'neutral'}
+                          >
+                            {MODE_LABELS[mode]}
+                          </Badge>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+                <Link
+                  to={`/sets/${set.id}/study`}
+                  className="btn btn-ghost"
+                  aria-label={`Study ${set.title}`}
+                >
+                  <Play aria-hidden="true" className="size-4" />
+                  Start
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       ) : null}
     </div>
