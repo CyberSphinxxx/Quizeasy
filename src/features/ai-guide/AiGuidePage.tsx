@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CircleAlert, Sparkles, Upload } from 'lucide-react';
+import { CircleAlert, Upload } from 'lucide-react';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { Badge } from '@/components/ui/Badge';
 import { CopyButton } from '@/features/shared/CopyButton';
 import {
   AI_ACCURACY_WARNING,
@@ -10,97 +9,116 @@ import {
   type GuidePrompt,
 } from './prompts';
 
+const STEPS = [
+  {
+    step: '01',
+    title: 'Attach your material',
+    detail:
+      'Open ChatGPT, Gemini, Claude or any other tool and add your notes.',
+  },
+  {
+    step: '02',
+    title: 'Send the prompt',
+    detail: 'Copy the prompt below and send it as your next message.',
+  },
+  {
+    step: '03',
+    title: 'Paste the reply back',
+    detail:
+      'The answer should be plain Q: and A: lines — paste it into Import.',
+  },
+];
+
 export function AiGuidePage() {
   const [selected, setSelected] = useState<GuidePrompt>(
     GUIDE_PROMPTS[0] as GuidePrompt,
   );
 
   return (
-    <div>
+    <div className="flex flex-col gap-5">
       <PageHeader
+        eyebrow="AI guide"
         title="AI guide"
-        subtitle="Quizeasy does not send your notes anywhere. This page helps you use ChatGPT, Gemini, Claude, or another tool to turn your material into question-and-answer pairs you can paste back in."
+        subtitle="Copy a prompt into any AI tool, then bring the Q: and A: lines back here to review them."
       />
 
-      <div className="mb-5 flex flex-wrap gap-2">
-        {GUIDE_PROMPTS.map((prompt) => {
-          const active = prompt.id === selected.id;
-          return (
-            <button
-              key={prompt.id}
-              type="button"
-              aria-pressed={active}
-              onClick={() => setSelected(prompt)}
-              className={`card flex-1 basis-64 p-4 text-left transition ${
-                active
-                  ? 'border-indigo-500 ring-2 ring-indigo-200 dark:border-indigo-400 dark:ring-indigo-900'
-                  : 'hover:border-indigo-300 dark:hover:border-indigo-700'
-              }`}
-            >
-              <span className="flex items-center justify-between gap-2">
-                <span className="font-semibold">{prompt.name}</span>
-                {active ? <Badge tone="info">Selected</Badge> : null}
+      <section aria-label="How this works">
+        <h2 className="eyebrow mb-3">HOW THIS WORKS</h2>
+        <ol className="grid gap-4 sm:grid-cols-3">
+          {STEPS.map((item) => (
+            <li key={item.step} className="card flex flex-col gap-1 p-5">
+              <span className="font-mono text-eyebrow text-muted">
+                {item.step}
               </span>
-              <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">
-                {prompt.summary}
+              <span className="text-card font-display font-medium">
+                {item.title}
               </span>
-              <span className="mt-2 block whitespace-pre-line font-mono text-xs text-slate-500 dark:text-slate-400">
-                {prompt.preview}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <section className="card mb-5 p-4" aria-label="Prompt">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base">{selected.name} prompt</h2>
-          <CopyButton text={selected.text} />
-        </div>
-        <pre className="max-h-96 overflow-auto rounded-xl bg-slate-100 p-4 text-xs leading-relaxed whitespace-pre-wrap text-slate-800 dark:bg-slate-950 dark:text-slate-100">
-          {selected.text}
-        </pre>
-        <p className="mt-2 hint">
-          Tip: paste your notes or upload your PDF first, then send this prompt
-          so the AI has something to work from.
-        </p>
-      </section>
-
-      <section className="card mb-5 p-4" aria-label="How to use this guide">
-        <h2 className="mb-2 text-base">How this works</h2>
-        <ol className="flex list-decimal flex-col gap-2 pl-5 text-sm text-slate-700 dark:text-slate-200">
-          <li>
-            Open your preferred AI tool and attach or paste the study material.
-          </li>
-          <li>Copy the prompt above and send it.</li>
-          <li>
-            Copy the AI&apos;s reply — it should be plain “Q:” and “A:” lines
-            with no commentary.
-          </li>
-          <li>
-            <Link
-              to="/import"
-              className="font-medium text-indigo-700 hover:underline dark:text-indigo-300"
-            >
-              Paste it into Quizeasy
-            </Link>{' '}
-            and check the preview before saving.
-          </li>
+              <span className="text-caption text-muted">{item.detail}</span>
+            </li>
+          ))}
         </ol>
       </section>
 
-      <p className="mb-5 flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
+      <section aria-label="Prompt format">
+        <h2 className="eyebrow mb-3">PROMPT FORMAT</h2>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {GUIDE_PROMPTS.map((prompt) => {
+            const active = prompt.id === selected.id;
+            return (
+              <button
+                key={prompt.id}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setSelected(prompt)}
+                className={`card flex flex-col items-start gap-2 p-5 text-left transition ${
+                  active ? 'border-accent' : 'hover:border-line-strong'
+                }`}
+              >
+                <span className="flex w-full items-center justify-between gap-2">
+                  <span className="text-card font-display font-medium">
+                    {prompt.name}
+                  </span>
+                  {active ? (
+                    <span className="chip chip-accent">SELECTED</span>
+                  ) : null}
+                </span>
+                <span className="text-caption text-muted">
+                  {prompt.summary}
+                </span>
+                <span className="text-caption text-muted font-mono whitespace-pre-line">
+                  {prompt.preview}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="card p-5" aria-label="Prompt">
+        <h2 className="eyebrow mb-3">{selected.name.toUpperCase()} PROMPT</h2>
+        <pre className="rounded-control border-line bg-inset max-h-[360px] overflow-auto border p-4 font-mono text-caption whitespace-pre-wrap text-ink">
+          {selected.text}
+        </pre>
+        <div className="border-line bg-surface sticky bottom-0 mt-3 flex flex-wrap items-center justify-between gap-3 border-t pt-3">
+          <p className="text-caption text-muted max-w-prose">
+            Paste your notes or attach your PDF first, then send this prompt so
+            the AI has something to work from.
+          </p>
+          <CopyButton text={selected.text} />
+        </div>
+      </section>
+
+      <p className="card text-caption text-warning flex items-start gap-2 px-4 py-3">
         <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
         {AI_ACCURACY_WARNING}
       </p>
 
       <div className="flex flex-wrap gap-2">
-        <Link to="/import" className="btn btn-primary">
+        <Link to="/import" className="btn btn-outline">
           <Upload aria-hidden="true" className="size-4" />
           Paste your questions
         </Link>
-        <Link to="/settings" className="btn btn-secondary">
-          <Sparkles aria-hidden="true" className="size-4" />
+        <Link to="/settings" className="btn btn-ghost">
           Future AI settings
         </Link>
       </div>
