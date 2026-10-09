@@ -6,9 +6,10 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vitest/config';
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
+const base = process.env.VITE_BASE_PATH ?? (process.env.VERCEL ? '/' : './');
 
 export default defineConfig({
-  base: './',
+  base,
   plugins: [
     react(),
     tailwindcss(),
@@ -22,12 +23,12 @@ export default defineConfig({
         short_name: 'Quizeasy',
         description:
           'Local-first quiz maker. Paste formatted Q&A, review the import, and study as flashcards, multiple choice, identification, or a mixed quiz.',
-        theme_color: '#4338ca',
-        background_color: '#f8fafc',
+        theme_color: '#f6f2ea',
+        background_color: '#f6f2ea',
         display: 'standalone',
         orientation: 'portrait-primary',
-        scope: './',
-        start_url: './',
+        scope: base,
+        start_url: base,
         categories: ['education', 'productivity'],
         icons: [
           {
@@ -51,7 +52,8 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest}'],
+        // woff2 is included so the app keeps its real typefaces offline.
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,woff2}'],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
         clientsClaim: false,
