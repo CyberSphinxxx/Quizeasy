@@ -48,7 +48,7 @@ export function SetDetailPage() {
         title="That set is gone"
         description="It may have been deleted in another tab. Your other sets are still here."
         actions={
-          <Link to="/" className="btn btn-primary">
+          <Link to="/" className="btn btn-outline">
             Back to library
           </Link>
         }
@@ -136,6 +136,7 @@ export function SetDetailPage() {
   return (
     <div>
       <PageHeader
+        eyebrow="Set"
         title={set.title}
         subtitle={
           <span data-testid="set-meta">
@@ -153,12 +154,12 @@ export function SetDetailPage() {
                 Study
               </Link>
             ) : null}
-            <Link to={`/sets/${set.id}/edit`} className="btn btn-secondary">
+            <Link to={`/sets/${set.id}/edit`} className="btn btn-outline">
               <PencilLine aria-hidden="true" className="size-4" />
               Edit questions
             </Link>
             <Button
-              variant="secondary"
+              variant="outline"
               aria-label="More set actions"
               onClick={() => {
                 setTitleDraft(set.title);
@@ -173,7 +174,7 @@ export function SetDetailPage() {
       />
 
       {set.description ? (
-        <p className="mb-4 max-w-prose text-sm text-slate-700 dark:text-slate-200">
+        <p className="text-body text-muted mb-4 max-w-prose">
           {set.description}
         </p>
       ) : null}
@@ -198,7 +199,7 @@ export function SetDetailPage() {
                 <Plus aria-hidden="true" className="size-4" />
                 Add questions
               </Link>
-              <Link to={`/sets/${set.id}/edit`} className="btn btn-secondary">
+              <Link to={`/sets/${set.id}/edit`} className="btn btn-outline">
                 Add one manually
               </Link>
             </>
@@ -206,77 +207,83 @@ export function SetDetailPage() {
         />
       ) : (
         <div className="grid gap-4 lg:grid-cols-3">
-          <section className="card p-4 lg:col-span-2" aria-label="Questions">
+          <section className="card p-5 lg:col-span-2" aria-label="Questions">
             <div className="mb-3 flex items-center justify-between gap-2">
-              <h2 className="text-base">Questions</h2>
+              <h2 className="eyebrow">Questions</h2>
               <Link
                 to={`/sets/${set.id}/edit`}
-                className="text-sm font-medium text-indigo-700 hover:underline dark:text-indigo-300"
+                className="text-body text-accent hover:underline"
               >
                 Open editor
               </Link>
             </div>
-            <ul className="flex flex-col divide-y divide-slate-200 dark:divide-slate-800">
+            <ul className="flex flex-col">
               {questions.slice(0, 5).map((question) => (
-                <li key={question.id} className="py-2">
-                  <p className="text-sm font-medium">{question.prompt}</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {question.answer}
-                  </p>
+                <li
+                  key={question.id}
+                  className="border-line first:border-t-0 flex flex-col gap-1 border-t py-3"
+                >
+                  <p className="text-body font-medium">{question.prompt}</p>
+                  <p className="text-body text-muted">{question.answer}</p>
                 </li>
               ))}
             </ul>
             {questions.length > 5 ? (
-              <p className="mt-3 hint">
+              <p className="text-caption text-muted mt-3">
                 +{questions.length - 5} more in the editor.
               </p>
             ) : null}
           </section>
 
           <div className="flex flex-col gap-4">
-            <section className="card p-4" aria-label="Study modes available">
-              <h2 className="mb-2 text-base">What you can study</h2>
-              <ul className="flex flex-col gap-1.5 text-sm">
-                <li className="flex justify-between gap-2">
-                  <span>Flashcards</span>
-                  <span className="font-semibold">{eligibility.flashcard}</span>
-                </li>
-                <li className="flex justify-between gap-2">
-                  <span>Multiple choice</span>
-                  <span className="font-semibold">
+            <section className="card p-5" aria-label="Study modes available">
+              <h2 className="eyebrow mb-3">What you can study</h2>
+              <dl className="flex flex-col">
+                <div className="row">
+                  <dt className="text-body">Flashcards</dt>
+                  <dd className="font-mono text-caption text-muted">
+                    {eligibility.flashcard}
+                  </dd>
+                </div>
+                <div className="row">
+                  <dt className="text-body">Multiple choice</dt>
+                  <dd className="font-mono text-caption text-muted">
                     {eligibility['multiple-choice']}
-                  </span>
-                </li>
-                <li className="flex justify-between gap-2">
-                  <span>Identification</span>
-                  <span className="font-semibold">
+                  </dd>
+                </div>
+                <div className="row">
+                  <dt className="text-body">Identification</dt>
+                  <dd className="font-mono text-caption text-muted">
                     {eligibility.identification}
-                  </span>
-                </li>
-              </ul>
-              <p className="mt-2 hint">
+                  </dd>
+                </div>
+              </dl>
+              <p className="text-caption text-muted mt-3">
                 Multiple choice needs wrong choices. Add “W:” lines in the
                 editor if a question is missing them.
               </p>
             </section>
 
-            <section className="card p-4" aria-label="Recent sessions">
-              <h2 className="mb-2 text-base">Recent sessions</h2>
+            <section className="card p-5" aria-label="Recent sessions">
+              <h2 className="eyebrow mb-3">Recent sessions</h2>
               {data.sessions.length === 0 ? (
-                <p className="text-sm text-slate-600 dark:text-slate-300">
+                <p className="text-body text-muted">
                   No sessions yet. Start one with the Study button.
                 </p>
               ) : (
-                <ul className="flex flex-col gap-2 text-sm">
+                <ul className="flex flex-col gap-2">
                   {data.sessions.slice(0, 5).map((session) => (
-                    <li key={session.id}>
+                    <li
+                      key={session.id}
+                      className="flex flex-wrap items-baseline gap-2"
+                    >
                       <Link
                         to={`/sets/${set.id}/results/${session.id}`}
-                        className="text-indigo-700 hover:underline dark:text-indigo-300"
+                        className="text-body text-accent hover:underline"
                       >
                         {formatDateTime(session.startedAt)}
-                      </Link>{' '}
-                      <span className="hint">
+                      </Link>
+                      <span className="font-mono text-eyebrow text-muted">
                         {session.mode}
                         {session.completedAt ? '' : ' · not finished'}
                       </span>
@@ -310,7 +317,7 @@ export function SetDetailPage() {
           <div className="flex flex-col gap-2">
             <Link
               to={`/import?set=${set.id}`}
-              className="btn btn-secondary"
+              className="btn btn-outline"
               onClick={() => setMoreOpen(false)}
             >
               <Plus aria-hidden="true" className="size-4" />
@@ -324,12 +331,12 @@ export function SetDetailPage() {
                 reload();
               }}
             />
-            <Button variant="secondary" onClick={() => void handleExport()}>
+            <Button variant="outline" onClick={() => void handleExport()}>
               <Download aria-hidden="true" className="size-4" />
               Export this set
             </Button>
             <Button
-              variant="secondary"
+              variant="outline"
               onClick={() => void handleDuplicate()}
               disabled={busy}
             >
