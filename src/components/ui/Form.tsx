@@ -38,7 +38,7 @@ export function Field({
         <p
           id={errorId}
           role="alert"
-          className="text-xs font-medium text-rose-700 dark:text-rose-300"
+          className="flex items-center gap-1.5 text-caption text-incorrect"
         >
           {error}
         </p>
@@ -82,7 +82,11 @@ export function TextAreaField({
   return (
     <Field label={label} hint={hint} error={error}>
       {(props) => (
-        <textarea className="input min-h-24 resize-y" {...props} {...rest} />
+        <textarea
+          className="input input-mono min-h-32 resize-y"
+          {...props}
+          {...rest}
+        />
       )}
     </Field>
   );
@@ -103,8 +107,8 @@ export function Toggle({
 }) {
   const id = useId();
   return (
-    <div className="flex items-start justify-between gap-4 py-2">
-      <div className="flex flex-col">
+    <div className="flex items-start justify-between gap-4 py-2.5">
+      <div className="flex flex-col gap-0.5">
         <label className="label" htmlFor={id}>
           {label}
         </label>
@@ -117,16 +121,16 @@ export function Toggle({
         aria-checked={checked}
         disabled={disabled}
         onClick={() => onChange(!checked)}
-        className={`mt-1 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition disabled:opacity-50 ${
+        className={`mt-0.5 inline-flex h-5 w-9 shrink-0 items-center rounded-full border transition disabled:opacity-50 ${
           checked
-            ? 'bg-indigo-600 dark:bg-indigo-500'
-            : 'bg-slate-300 dark:bg-slate-700'
+            ? 'border-accent bg-accent'
+            : 'border-line bg-raised hover:border-line-strong'
         }`}
       >
         <span
           aria-hidden="true"
-          className={`size-5 rounded-full bg-white shadow transition-transform ${
-            checked ? 'translate-x-5' : 'translate-x-0.5'
+          className={`size-3.5 rounded-full transition-transform ${
+            checked ? 'translate-x-4.5 bg-canvas' : 'translate-x-0.5 bg-surface'
           }`}
         />
       </button>
@@ -140,6 +144,10 @@ export interface SegmentedOption<T extends string> {
   description?: string;
 }
 
+/**
+ * A visible track holding content-sized segments. Segments never stretch to
+ * fill the row, and they wrap on narrow screens.
+ */
 export function SegmentedControl<T extends string>({
   label,
   options,
@@ -157,7 +165,7 @@ export function SegmentedControl<T extends string>({
       <div
         role="radiogroup"
         aria-label={label}
-        className="flex flex-wrap gap-2 rounded-xl bg-slate-100 p-1 dark:bg-slate-900"
+        className="flex w-fit max-w-full flex-wrap gap-1 rounded-control border border-line bg-raised p-[3px]"
       >
         {options.map((option) => {
           const selected = option.value === value;
@@ -168,10 +176,10 @@ export function SegmentedControl<T extends string>({
               role="radio"
               aria-checked={selected}
               onClick={() => onChange(option.value)}
-              className={`min-h-9 flex-1 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+              className={`h-7.5 rounded-control px-2.5 text-body font-medium transition ${
                 selected
-                  ? 'bg-white text-indigo-700 shadow-sm dark:bg-slate-700 dark:text-indigo-200'
-                  : 'text-slate-600 hover:bg-white/60 dark:text-slate-300 dark:hover:bg-slate-800/60'
+                  ? 'border border-line-strong bg-surface text-ink'
+                  : 'border border-transparent text-muted hover:text-ink'
               }`}
             >
               {option.label}
