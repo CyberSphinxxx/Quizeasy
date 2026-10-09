@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ClipboardPaste, Eraser, Save, TriangleAlert } from 'lucide-react';
+import {
+  ClipboardPaste,
+  Eraser,
+  Info,
+  Save,
+  TriangleAlert,
+} from 'lucide-react';
 import {
   parseQuizText,
   itemStatus,
@@ -281,16 +287,18 @@ export function ImportPage() {
   return (
     <div className="pb-4">
       <PageHeader
+        eyebrow="Import"
         title={
           targetSetId
             ? `Add questions to "${targetSetTitle ?? 'set'}"`
             : 'Paste questions'
         }
-        subtitle="Paste your own notes or text from an AI tool. Quizeasy reads it and shows you exactly what it found before saving anything."
+        subtitle="Paste your own notes or text from an AI tool, then review what Quizeasy found before saving anything."
       />
 
       {targetSetId ? (
-        <p className="mb-4 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-100">
+        <p className="card text-body text-muted mb-4 flex items-center gap-2 px-4 py-3">
+          <Info aria-hidden="true" className="size-4 shrink-0" />
           New questions will be added to the existing set instead of creating a
           new one.
         </p>
@@ -301,7 +309,7 @@ export function ImportPage() {
           <TextAreaField
             label="Questions and answers"
             hint="Supported: Q:/A: labels, Q/A/W/E/T, “Question:”/“Answer:”, numbered pairs, and “question | answer” lines."
-            className="min-h-64 font-mono text-sm"
+            className="min-h-64"
             value={text}
             onChange={(event) => setText(event.target.value)}
             placeholder={
@@ -311,7 +319,7 @@ export function ImportPage() {
           />
 
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="secondary" onClick={handlePasteFromClipboard}>
+            <Button variant="outline" onClick={handlePasteFromClipboard}>
               <ClipboardPaste aria-hidden="true" className="size-4" />
               Paste from clipboard
             </Button>
@@ -328,7 +336,7 @@ export function ImportPage() {
               <Eraser aria-hidden="true" className="size-4" />
               Clear
             </Button>
-            <span className="hint">
+            <span className="font-mono text-eyebrow text-muted">
               {text.length.toLocaleString()} characters
             </span>
           </div>
@@ -371,7 +379,7 @@ export function ImportPage() {
               />
 
               {result.truncated ? (
-                <p className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
+                <p className="card text-body text-warning flex items-start gap-2 px-3 py-2">
                   <TriangleAlert
                     aria-hidden="true"
                     className="mt-0.5 size-4 shrink-0"
@@ -383,7 +391,7 @@ export function ImportPage() {
 
               {counts.included === counts.total && counts.needsFix > 0 ? (
                 <Button
-                  variant="secondary"
+                  variant="outline"
                   size="sm"
                   onClick={handleExcludeInvalid}
                 >
@@ -423,7 +431,7 @@ export function ImportPage() {
 
               {items.length > visibleCount ? (
                 <Button
-                  variant="secondary"
+                  variant="outline"
                   onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
                 >
                   Show {Math.min(PAGE_SIZE, items.length - visibleCount)} more
@@ -435,7 +443,7 @@ export function ImportPage() {
       </div>
 
       {result && items.length > 0 ? (
-        <div className="sticky bottom-16 mt-6 rounded-2xl border border-slate-200 bg-white/95 p-3 backdrop-blur lg:bottom-4 dark:border-slate-800 dark:bg-slate-900/95">
+        <div className="card nav:bottom-4 sticky bottom-16 mt-6 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <ImportCountsRow counts={counts} testId="import-counts-sticky" />
             <div className="flex flex-col items-end gap-1">
@@ -454,7 +462,7 @@ export function ImportPage() {
                     : `Save ${counts.included} ${pluralize(counts.included, 'question')}`}
               </Button>
               {includedWithErrors > 0 ? (
-                <p className="text-xs text-rose-700 dark:text-rose-300">
+                <p className="text-caption text-incorrect">
                   {includedWithErrors} included{' '}
                   {pluralize(includedWithErrors, 'entry', 'entries')} still need
                   fixing.
