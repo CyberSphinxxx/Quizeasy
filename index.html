@@ -11,10 +11,39 @@
       name="description"
       content="Quizeasy is a local-first quiz maker. Paste formatted questions and answers, review the import, and study as flashcards, multiple choice, identification, or a mixed quiz. No account required."
     />
-    <meta name="theme-color" content="#4338ca" />
-    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta
+      name="theme-color"
+      content="#f6f2ea"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#161310"
+      media="(prefers-color-scheme: dark)"
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <script>
+      // When accessed via a direct pathname on web hosts with SPA rewrites (e.g. Vercel),
+      // seamlessly normalize the pathname into a hash route before the router initializes.
+      (function () {
+        try {
+          var path = window.location.pathname;
+          var routeMatch = path.match(
+            /\/(import|study|sets|guide|settings)(\/.*)?$/,
+          );
+          if (routeMatch && !window.location.hash) {
+            window.history.replaceState(
+              null,
+              '',
+              '#' + routeMatch[0] + window.location.search,
+            );
+          }
+        } catch (error) {
+          /* History API may be restricted in sandbox environments */
+        }
+      })();
+    </script>
     <script>
       // Set the theme class before first paint to avoid a flash of the wrong theme.
       (function () {
