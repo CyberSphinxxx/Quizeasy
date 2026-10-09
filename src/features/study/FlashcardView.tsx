@@ -1,6 +1,7 @@
 import { Check, Eye, X } from 'lucide-react';
 import type { Question } from '@/domain/schemas/question';
 import { Button } from '@/components/ui/Button';
+import { Keycap } from '@/components/ui/Badge';
 
 export function FlashcardView({
   question,
@@ -18,13 +19,11 @@ export function FlashcardView({
   onSkip: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="card flex min-h-40 flex-col justify-center gap-3 p-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          Question
-        </p>
+    <div className="flex flex-col gap-5">
+      <div className="card flex flex-col gap-3 p-8">
+        <p className="eyebrow">Question</p>
         <p
-          className="whitespace-pre-wrap text-lg font-medium"
+          className="text-question whitespace-pre-wrap"
           data-testid="flashcard-prompt"
         >
           {question.prompt}
@@ -32,16 +31,13 @@ export function FlashcardView({
       </div>
 
       {revealed ? (
-        <div
-          className="card animate-fade-in flex flex-col gap-3 border-indigo-200 p-5 dark:border-indigo-900"
-          data-testid="flashcard-answer"
-        >
-          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">
-            Answer
+        <div className="card p-5" data-testid="flashcard-answer">
+          <p className="eyebrow">Answer</p>
+          <p className="text-question mt-2 whitespace-pre-wrap">
+            {question.answer}
           </p>
-          <p className="whitespace-pre-wrap text-lg">{question.answer}</p>
           {question.explanation ? (
-            <p className="text-sm text-slate-600 dark:text-slate-300">
+            <p className="text-body text-muted border-line mt-3 border-t pt-3">
               {question.explanation}
             </p>
           ) : null}
@@ -49,19 +45,24 @@ export function FlashcardView({
       ) : null}
 
       {!revealed ? (
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={onReveal} data-testid="flashcard-reveal">
-            <Eye aria-hidden="true" className="size-4" />
-            Show answer
-          </Button>
-          <Button variant="ghost" onClick={onSkip} disabled={answered}>
-            Skip for now
-          </Button>
-          <p className="hint w-full">Tip: press Space to reveal.</p>
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button onClick={onReveal} data-testid="flashcard-reveal">
+              <Eye aria-hidden="true" className="size-4" />
+              Show answer
+            </Button>
+            <Button variant="ghost" onClick={onSkip} disabled={answered}>
+              Skip for now
+            </Button>
+          </div>
+          <p className="text-caption text-muted flex items-center gap-1.5">
+            <Keycap>Space</Keycap>
+            <span>reveals the answer</span>
+          </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="danger"
               onClick={() => onAnswer('missed')}
@@ -81,7 +82,13 @@ export function FlashcardView({
               Skip for now
             </Button>
           </div>
-          <p className="hint">Keys: 1 = missed, 2 = knew it, arrows to move.</p>
+          <p className="text-caption text-muted flex flex-wrap items-center gap-1.5">
+            <Keycap>1</Keycap>
+            <span>missed</span>
+            <span aria-hidden="true">·</span>
+            <Keycap>2</Keycap>
+            <span>knew it</span>
+          </p>
         </div>
       )}
     </div>
