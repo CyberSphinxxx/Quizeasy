@@ -23,6 +23,42 @@ import {
 const EXAMPLES_DIR = path.join(process.cwd(), 'examples');
 const SAMPLE_IMPORT_FILE = path.join(EXAMPLES_DIR, 'sample-import.txt');
 const SAMPLE_SET_FILE = path.join(EXAMPLES_DIR, 'sample-set.quizeasy.json');
+const SET_SCHEMA_FILE = path.join(
+  process.cwd(),
+  'schemas',
+  'quizeasy-set.schema.json',
+);
+
+interface JsonSchemaNode {
+  required?: string[];
+  properties?: Record<string, unknown>;
+  items?: JsonSchemaNode;
+}
+
+/**
+ * Checks one object against a JSON Schema node using the subset the shipped
+ * schema actually uses (required keys and declared properties). Avoids pulling
+ * in a validator dependency for a documentation file.
+ */
+function schemaProblems(
+  value: unknown,
+  node: JsonSchemaNode,
+  label: string,
+): string[] {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return [`${label}: expected an object`];
+  }
+  const record = value as Record<string, unknown>;
+  const declared = new Set(Object.keys(node.properties ?? {}));
+  const problems: string[] = [];
+  for (const key of node.required ?? []) {
+    if (!(key in record)) problems.push(`${label}: missing "${key}"`);
+  }
+  for (const key of Object.keys(record)) {
+    if (!declared.has(key)) problems.push(`${label}: undeclared "${key}"`);
+  }
+  return problems;
+}
 
 function readSample(file: string): string {
   return readFileSync(file, 'utf8');
@@ -104,6 +140,42 @@ describe('shipped example artifacts', () => {
     expect(second.remappedIds).toBeGreaterThan(0);
     expect((await repositories.sets.list()).items).toHaveLength(2);
     expect((await repositories.questions.listAll()).items).toHaveLength(8);
+  });
+
+  it('documents the sample set export in the shipped JSON schema', () => {
+    const schema = JSON.parse(readSample(SET_SCHEMA_FILE)) as JsonSchemaNode;
+    const { file } = readSampleSetExport();
+    const raw = JSON.parse(readSample(SAMPLE_SET_FILE)) as unknown;
+
+    // The schema is the published description of the export format, so the
+    // example must not contain fields it does not document, and must not omit
+    // fields it requires.
+    expect(schemaProblems(raw, schema, 'export')).toEqual([]);
+    expect(
+      schemaProblems(file.set, schema.properties?.set as JsonSchemaNode, 'set'),
+    ).toEqual([]);
+    const questionNode = schema.properties?.questions as JsonSchemaNode;
+    const itemNode = questionNode.items as JsonSchemaNode;
+    file.questions.forEach((question, index) => {
+      expect(schemaProblems(question, itemNode, `question[${index}]`)).toEqual(
+        [],
+      );
+    });
+
+    // The hand-written example must look exactly like a real export, or the
+    // README would teach a shape the app never produces.
+    const exported = buildSetExport(file.set, file.questions);
+    const keys = (value: object) => Object.keys(value).sort();
+    const rawSet = (raw as { set: object }).set;
+    const rawQuestions = (raw as { questions: object[] }).questions;
+    expect(keys(rawSet)).toEqual(keys(exported.set));
+    expect(file.questions.length).toBe(rawQuestions.length);
+    file.questions.forEach((question, index) => {
+      expect(keys(question)).toEqual(keys(exported.questions[index] ?? {}));
+      expect(keys(rawQuestions[index] ?? {})).toEqual(
+        keys(exported.questions[index] ?? {}),
+      );
+    });
   });
 
   it('round-trips the sample set through export, backup, and restore', async () => {
