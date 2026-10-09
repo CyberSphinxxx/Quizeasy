@@ -8,7 +8,7 @@ import { parseJson, readTextFile } from '@/lib/files';
 
 export function SetFileImportButton({
   label = 'Import set file',
-  variant = 'secondary',
+  variant = 'outline',
   targetSetId,
   onImported,
 }: {
