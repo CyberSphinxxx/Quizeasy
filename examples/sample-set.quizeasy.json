@@ -4,6 +4,7 @@
   "exportedAt": "2026-10-07T00:00:00.000Z",
   "set": {
     "id": "sample-set-1",
+    "schemaVersion": 1,
     "title": "Computer Basics",
     "description": "Example Quizeasy set — original content, safe to share.",
     "createdAt": "2026-10-07T00:00:00.000Z",
