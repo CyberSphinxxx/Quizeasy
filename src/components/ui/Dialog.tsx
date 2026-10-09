@@ -103,7 +103,7 @@ export function Dialog({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-40 flex items-end justify-center overflow-y-auto bg-slate-900/50 p-3 sm:items-center sm:p-6"
+      className="bg-scrim fixed inset-0 z-40 flex items-end justify-center overflow-y-auto p-3 sm:items-center sm:p-6"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -115,18 +115,15 @@ export function Dialog({
         aria-labelledby={titleId}
         {...(description ? { 'aria-describedby': descriptionId } : {})}
         tabIndex={-1}
-        className={`animate-fade-in w-full ${widthClass} rounded-2xl border border-slate-200 bg-white p-5 shadow-xl dark:border-slate-800 dark:bg-slate-900`}
+        className={`rounded-card border-line bg-surface w-full ${widthClass} border p-5`}
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 id={titleId} className="text-lg">
+            <h2 id={titleId} className="text-question">
               {title}
             </h2>
             {description ? (
-              <p
-                id={descriptionId}
-                className="mt-1 text-sm text-slate-600 dark:text-slate-300"
-              >
+              <p id={descriptionId} className="text-body text-muted mt-1">
                 {description}
               </p>
             ) : null}
@@ -134,7 +131,7 @@ export function Dialog({
           <button
             type="button"
             aria-label="Close dialog"
-            className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+            className="rounded-control text-muted hover:bg-raised hover:text-ink p-1.5 transition"
             onClick={onClose}
           >
             <X aria-hidden="true" className="size-4" />
@@ -171,7 +168,7 @@ export function ConfirmDialog({
   message,
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
-  tone = 'danger',
+  tone = 'danger-solid',
   confirmationPhrase,
   busy = false,
   onConfirm,
@@ -196,7 +193,7 @@ export function ConfirmDialog({
       size="sm"
       footer={
         <>
-          <Button variant="secondary" onClick={handleClose} disabled={busy}>
+          <Button variant="outline" onClick={handleClose} disabled={busy}>
             {cancelLabel}
           </Button>
           <Button variant={tone} onClick={onConfirm} disabled={!ready || busy}>
