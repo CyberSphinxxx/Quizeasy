@@ -149,7 +149,7 @@ export function StudySetupPage() {
         title="That set is gone"
         description="It may have been deleted in another tab."
         actions={
-          <Link to="/" className="btn btn-primary">
+          <Link to="/" className="btn btn-outline">
             Back to library
           </Link>
         }
@@ -177,19 +177,18 @@ export function StudySetupPage() {
   return (
     <div>
       <PageHeader
-        title="Study"
-        subtitle={`${bundle.data.set.title} · ${questions.length} ${pluralize(
+        eyebrow="Set up a session"
+        title={bundle.data.set.title}
+        subtitle={`${questions.length} ${pluralize(
           questions.length,
           'question',
-        )}`}
+        )} · choose a mode, then start when the options look right.`}
         backTo={`/sets/${bundle.data.set.id}`}
         backLabel="Back to set"
       />
 
       <section aria-label="Choose a study mode" className="mb-6">
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          How do you want to study?
-        </h2>
+        <h2 className="eyebrow mb-3">How do you want to study?</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {MODE_ORDER.map((candidate) => {
             const count = modeCounts[candidate];
@@ -203,37 +202,39 @@ export function StudySetupPage() {
                 aria-pressed={selected}
                 onClick={() => setMode(candidate)}
                 data-testid={`mode-${candidate}`}
-                className={`card flex flex-col items-start gap-1 p-4 text-left transition disabled:opacity-50 ${
-                  selected
-                    ? 'border-indigo-500 ring-2 ring-indigo-200 dark:border-indigo-400 dark:ring-indigo-900'
-                    : 'hover:border-indigo-300 dark:hover:border-indigo-700'
+                className={`card flex flex-col items-start gap-1 p-5 text-left transition disabled:opacity-50 ${
+                  selected ? 'border-accent' : 'hover:border-line-strong'
                 }`}
               >
                 <span className="flex w-full items-center justify-between gap-2">
-                  <span className="font-semibold">
+                  <span className="text-card font-display font-medium">
                     {STUDY_MODE_LABELS[candidate]}
                   </span>
                   <Badge
                     tone={
-                      count === 0 ? 'danger' : selected ? 'info' : 'neutral'
+                      count === 0
+                        ? 'incorrect'
+                        : selected
+                          ? 'accent'
+                          : 'neutral'
                     }
                   >
                     {count} available
                   </Badge>
                 </span>
-                <span className="text-sm text-slate-600 dark:text-slate-300">
+                <span className="text-caption text-muted">
                   {STUDY_MODE_DESCRIPTIONS[candidate]}
                 </span>
                 {candidate === 'multiple-choice' &&
                 eligibility['multiple-choice'] === 0 ? (
-                  <span className="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                  <span className="text-caption text-warning mt-1">
                     Add “W:” wrong choices to a question, or import more
                     questions, to unlock multiple choice.
                   </span>
                 ) : null}
                 {candidate === 'identification' &&
                 eligibility.identification === 0 ? (
-                  <span className="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                  <span className="text-caption text-warning mt-1">
                     Identification needs short answers (under 80 characters).
                   </span>
                 ) : null}
@@ -244,7 +245,7 @@ export function StudySetupPage() {
       </section>
 
       <section
-        className="card mb-6 flex flex-col gap-4 p-4"
+        className="card mb-6 flex flex-col gap-4 p-5"
         aria-label="Session options"
       >
         <SegmentedControl
@@ -286,7 +287,7 @@ export function StudySetupPage() {
         {availableTags.length > 0 ? (
           <fieldset className="flex flex-col gap-2">
             <legend className="label">Only study these tags (optional)</legend>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {availableTags.map((tag) => {
                 const selected = tags.includes(tag);
                 return (
@@ -301,10 +302,10 @@ export function StudySetupPage() {
                           : [...current, tag],
                       )
                     }
-                    className={`min-h-9 rounded-full border px-3 text-sm font-medium transition ${
+                    className={`rounded-chip h-7.5 border px-2.5 font-mono text-eyebrow transition ${
                       selected
-                        ? 'border-indigo-500 bg-indigo-50 text-indigo-800 dark:border-indigo-400 dark:bg-indigo-950 dark:text-indigo-200'
-                        : 'border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800'
+                        ? 'border-accent bg-accent-soft text-accent'
+                        : 'border-line bg-raised text-muted hover:text-ink'
                     }`}
                   >
                     {tag}
@@ -337,7 +338,7 @@ export function StudySetupPage() {
       </div>
 
       {questions.length > eligibility.flashcard ? (
-        <p className="mt-3 flex items-start gap-2 text-xs text-amber-700 dark:text-amber-300">
+        <p className="text-caption text-warning mt-3 flex items-start gap-2">
           <TriangleAlert
             aria-hidden="true"
             className="mt-0.5 size-4 shrink-0"
