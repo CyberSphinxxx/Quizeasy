@@ -10,6 +10,7 @@ import {
 import { useLibrary } from '@/hooks/useLibrary';
 import { SetCard } from './SetCard';
 import { SetActionsDialog } from './SetActionsDialog';
+import { useSetSignals } from './useSetSignals';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { EmptyState, ErrorState, LoadingPanel } from '@/components/ui/Feedback';
@@ -18,6 +19,122 @@ import { repositories } from '@/data/repositories';
 import { toast } from '@/app/store/appStore';
 import type { QuizSet } from '@/domain/schemas/set';
 import { EMPTY_SET_STATS } from '@/lib/empties';
+
+/** Sets shown before the search field earns its place on the page. */
+const SEARCH_THRESHOLD = 6;
+
+/** Illustration for the empty state. Never editable, never saved. */
+const SAMPLE_PAIRS = [
+  { prompt: 'What does CPU stand for?', answer: 'Central Processing Unit' },
+  { prompt: 'What does RAM stand for?', answer: 'Random Access Memory' },
+];
+
+const HOW_IT_WORKS = [
+  {
+    step: '01',
+    title: 'Generate with the AI guide',
+    detail: 'Ask any AI for plain Q: and A: lines — the guide has the prompt.',
+  },
+  {
+    step: '02',
+    title: 'Review the import',
+    detail: 'Quizeasy shows what it found and flags anything it cannot read.',
+  },
+  {
+    step: '03',
+    title: 'Study 4 ways',
+    detail: 'Flashcards, multiple choice, identification, or a mixed quiz.',
+  },
+];
+
+/**
+ * A read-only look-alike of the paste box: it shows the expected shape of the
+ * input but cannot be typed into, and it is hidden from assistive tech so the
+ * real "Review import" action is the only thing announced.
+ */
+function SamplePreview() {
+  return (
+    <div
+      aria-hidden="true"
+      className="rounded-control border-line-strong bg-inset border p-3"
+    >
+      <pre className="font-mono text-caption whitespace-pre-wrap">
+        {SAMPLE_PAIRS.map((pair, index) => (
+          <span key={pair.prompt}>
+            <span className="text-accent">Q:</span>{' '}
+            <span className="text-ink">{pair.prompt}</span>
+            {'\n'}
+            <span className="text-accent">A:</span>{' '}
+            <span className="text-muted">{pair.answer}</span>
+            {index < SAMPLE_PAIRS.length - 1 ? '\n\n' : '\n'}
+          </span>
+        ))}
+      </pre>
+    </div>
+  );
+}
+
+function LibraryEmptyState({
+  creating,
+  onReviewImport,
+  onImported,
+  onCreate,
+}: {
+  creating: boolean;
+  onReviewImport: () => void;
+  onImported: (setId: string) => void;
+  onCreate: () => void;
+}) {
+  return (
+    <section className="card p-6 lg:p-8" aria-label="Get started">
+      <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+        <div className="flex min-w-0 flex-col gap-4">
+          <p className="eyebrow">PASTE QUESTIONS</p>
+          <h2 className="text-question">Paste your questions to get started</h2>
+          <p className="text-body text-muted">
+            Quizeasy reads plain text like the sample below, then shows you
+            exactly what it found before saving anything.
+          </p>
+          <SamplePreview />
+          <div className="flex flex-wrap items-center gap-2">
+            <Button onClick={onReviewImport}>
+              <ClipboardPaste aria-hidden="true" className="size-4" />
+              Review import
+            </Button>
+            <SetFileImportButton onImported={onImported} />
+            <Button variant="ghost" onClick={onCreate} disabled={creating}>
+              <Plus aria-hidden="true" className="size-4" />
+              Create manually
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex min-w-0 flex-col gap-4">
+          <p className="eyebrow">HOW IT WORKS</p>
+          <ol className="flex flex-col gap-4">
+            {HOW_IT_WORKS.map((item) => (
+              <li key={item.step} className="flex gap-3">
+                <span className="font-mono text-eyebrow text-muted mt-0.5">
+                  {item.step}
+                </span>
+                <span className="flex flex-col gap-0.5">
+                  <span className="text-body font-semibold text-ink">
+                    {item.title}
+                  </span>
+                  <span className="text-caption text-muted">{item.detail}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className="text-caption text-muted flex items-start gap-2">
+            <Sparkles aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+            Every mode studies the same saved questions — nothing is duplicated.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export function LibraryPage() {
   const navigate = useNavigate();
@@ -28,6 +145,7 @@ export function LibraryPage() {
 
   const sets = data?.items ?? EMPTY_SET_STATS;
   const skipped = data?.skipped ?? 0;
+  const signals = useSetSignals(sets.length > 0);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -70,34 +188,47 @@ export function LibraryPage() {
     }
   };
 
+  const renderGrid = (items: typeof filtered) => (
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      {items.map((stats) => (
+        <SetCard
+          key={stats.set.id}
+          stats={stats}
+          modes={signals.modes[stats.set.id] ?? []}
+          lastMode={signals.lastMode[stats.set.id]}
+          onMore={() => setSelected(stats.set)}
+        />
+      ))}
+    </div>
+  );
+
   return (
-    <div>
+    <div className="flex flex-col gap-6">
+      {/* With sets on screen the header carries the one action the page body
+          cannot show; the empty state owns its own actions instead. */}
       <PageHeader
+        eyebrow="Your sets"
         title="Your library"
-        subtitle="Everything here is stored in this browser only."
         actions={
-          <>
+          sets.length > 0 ? (
             <SetFileImportButton
+              variant="ghost"
               onImported={(setId) => navigate(`/sets/${setId}`)}
             />
-            <Button onClick={() => navigate('/import')}>
-              <ClipboardPaste aria-hidden="true" className="size-4" />
-              Paste questions
-            </Button>
-          </>
+          ) : undefined
         }
       />
 
       {skipped > 0 ? (
         <div
           role="status"
-          className="mb-4 flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100"
+          className="card text-body flex items-start gap-2 px-4 py-3"
         >
           <TriangleAlert
             aria-hidden="true"
-            className="mt-0.5 size-4 shrink-0"
+            className="text-warning mt-0.5 size-4 shrink-0"
           />
-          <p>
+          <p className="text-ink">
             {skipped} stored {skipped === 1 ? 'set was' : 'sets were'}{' '}
             unreadable and {skipped === 1 ? 'was' : 'were'} skipped. Restoring a
             backup may recover them.
@@ -110,61 +241,44 @@ export function LibraryPage() {
       {error ? <ErrorState message={error} onRetry={reload} /> : null}
 
       {!loading && !error && sets.length === 0 ? (
-        <EmptyState
-          icon={<ClipboardPaste aria-hidden="true" className="size-6" />}
-          title="Paste your questions to get started"
-          description="Quizeasy reads plain text like “Q: What does CPU stand for?” followed by “A: Central Processing Unit”. Paste it once and study it as flashcards, multiple choice, identification, or a mixed quiz."
-          actions={
-            <>
-              <Button onClick={() => navigate('/import')}>
-                <ClipboardPaste aria-hidden="true" className="size-4" />
-                Paste questions
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={handleCreate}
-                disabled={creating}
-              >
-                <Plus aria-hidden="true" className="size-4" />
-                Create manually
-              </Button>
-              <Button variant="ghost" onClick={() => navigate('/guide')}>
-                <Sparkles aria-hidden="true" className="size-4" />
-                See AI guide
-              </Button>
-            </>
-          }
+        <LibraryEmptyState
+          creating={creating}
+          onReviewImport={() => navigate('/import')}
+          onImported={(setId) => navigate(`/sets/${setId}`)}
+          onCreate={handleCreate}
         />
       ) : null}
 
-      {sets.length > 0 ? (
+      {!loading && !error && sets.length > 0 ? (
         <>
-          <div className="mb-5">
-            <label className="sr-only" htmlFor="library-search">
-              Search sets
-            </label>
-            <div className="relative">
-              <Search
-                aria-hidden="true"
-                className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-              />
-              <input
-                id="library-search"
-                type="search"
-                className="input pl-9"
-                placeholder="Search sets by title, description, or tag"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-              />
+          {sets.length > SEARCH_THRESHOLD ? (
+            <div>
+              <label className="sr-only" htmlFor="library-search">
+                Search sets
+              </label>
+              <div className="relative max-w-md">
+                <Search
+                  aria-hidden="true"
+                  className="text-muted pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2"
+                />
+                <input
+                  id="library-search"
+                  type="search"
+                  className="input pl-9"
+                  placeholder="Search sets by title, description, or tag"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+              </div>
             </div>
-          </div>
+          ) : null}
 
           {query.trim().length > 0 && filtered.length === 0 ? (
             <EmptyState
               title="No sets match that search"
               description={`Nothing matched "${query.trim()}". Try a different word, or clear the search to see all ${sets.length} sets.`}
               actions={
-                <Button variant="secondary" onClick={() => setQuery('')}>
+                <Button variant="outline" onClick={() => setQuery('')}>
                   Clear search
                 </Button>
               }
@@ -172,36 +286,16 @@ export function LibraryPage() {
           ) : null}
 
           {showSections ? (
-            <section className="mb-6">
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Recently studied
-              </h2>
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {recentlyStudied.map((stats) => (
-                  <SetCard
-                    key={stats.set.id}
-                    stats={stats}
-                    onMore={() => setSelected(stats.set)}
-                  />
-                ))}
-              </div>
+            <section>
+              <h2 className="eyebrow mb-3">RECENTLY STUDIED</h2>
+              {renderGrid(recentlyStudied)}
             </section>
           ) : null}
 
           {filtered.length > 0 ? (
             <section>
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                {showSections ? 'All sets' : 'Sets'}
-              </h2>
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {filtered.map((stats) => (
-                  <SetCard
-                    key={stats.set.id}
-                    stats={stats}
-                    onMore={() => setSelected(stats.set)}
-                  />
-                ))}
-              </div>
+              <h2 className="eyebrow mb-3">ALL SETS</h2>
+              {renderGrid(filtered)}
             </section>
           ) : null}
         </>
