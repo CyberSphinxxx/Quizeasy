@@ -10,6 +10,17 @@ See the follow-up list at the end of `TASKS.md` for non-blocking polish.
 
 ## Completed
 
+**Paper Ledger visual layer** — the entire UI was restyled onto one token file
+(`src/styles/theme.css`: warm light palette, "warm ink" dark palette, four radii,
+seven type sizes, one accent). Every one of the ~400 hard-coded Tailwind palette
+utilities is gone, along with all six shadows, the brand gradient, both
+`backdrop-blur` surfaces and the fade-in animation. Fonts are self-hosted
+(Fraunces, Inter, JetBrains Mono via `@fontsource-variable`, latin subsets,
+125 KB total) so the app keeps its real typefaces offline; `woff2` was added to
+the service-worker precache and the PWA/`theme-color` values now match the paper
+palette. No `src/domain`, `src/parser`, `src/data` or `src/services` file was
+touched, and no test selector needed changing.
+
 **Foundation** — React 19 + TypeScript 6 + Vite 8 app, Tailwind CSS v4, strict
 TS (`strict`, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`), ESLint 10 +
 Prettier, Vitest + Testing Library, Playwright, PWA service worker, and the
@@ -48,12 +59,17 @@ and a "clear all local data" flow with a typed confirmation phrase.
 **Verified example artifacts** — the shipped `examples/sample-import.txt` and
 `examples/sample-set.quizeasy.json` are exercised by tests (parse → import →
 re-import merges instead of overwriting → export round trip → backup → restore),
-so the README instructions cannot silently rot.
+so the README instructions cannot silently rot. The same test also checks the
+shipped `schemas/quizeasy-set.schema.json` against the example: every field the
+example uses is documented, every field the schema requires is present, and the
+example's key shape matches a freshly generated export exactly.
 
 **UX** — responsive desktop sidebar + mobile bottom navigation, dark mode with a
 pre-paint theme script, keyboard shortcuts in study sessions, focus-trapped
 dialogs, toasts, loading/error/empty states, and confirmation for destructive
 actions.
+
+**Deployment & hosting** — `vercel.json` configured for zero-config Vercel deployment with SPA rewrites, immutable bundle asset caching, fresh service worker revalidation headers, and security headers; `.vercel/` added to `.gitignore`; `vite.config.ts` dynamically adopts root base path when `VERCEL` is detected while maintaining relative base for offline/file execution; pre-paint direct route normalizer bridges deep links into HashRouter.
 
 **Repository docs** — `README.md`, `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`,
 `CODE_OF_CONDUCT.md`, `AGENTS.md`, issue and PR templates, and a GitHub Actions
@@ -174,17 +190,34 @@ Last run: Windows, Node v24.19.0, npm 11.17.0.
 | Command                | Result                                                        |
 | ---------------------- | ------------------------------------------------------------- |
 | `npm run lint`         | **Pass** — 0 errors, 11 warnings (`react-refresh`, see above) |
-| `npm run typecheck`    | **Pass** — `tsc --noEmit`, no output                          |     | `npm run test` | **Pass** — 149 tests in 11 files (~9 s) |
-| `npm run build`        | **Pass** — 836 ms; PWA precaches 50 entries (738.79 KiB)      |
+| `npm run typecheck`    | **Pass** — `tsc --noEmit`, no output                          |
+| `npm run test`         | **Pass** — 150 tests in 11 files (~7 s)                       |
+| `npm run build`        | **Pass** — 478 ms; PWA precaches 52 entries (848.33 KiB)      |
 | `npm run format:check` | **Pass** — all files formatted                                |
 | `npm run verify`       | **Pass** — lint + typecheck + test + build                    |
 | `npm run test:e2e`     | **Pass** — 13/13 (10 `chromium-desktop`, 3 `chromium-mobile`) |
+
+Contrast (computed from the token values, all foreground/background pairs at
+text sizes 11–14 px): light mode min **4.56:1** (`muted` on `raised`), dark mode
+min **5.68:1**; the accent focus ring is 5.64:1 (light) / 8.66:1 (dark) against
+the canvas. Light `--warning` was deepened from `#8a6a1c` to `#7d5f14` because
+the original measured 4.03:1 on `--raised`.
+
+Visual-layer checks (after the redesign, in Chromium): light and dark both
+render from the same tokens; 1440 / 1024 / 390 px layouts have no horizontal
+overflow; the bottom tab bar replaces the sidebar below 880 px (a `nav`
+breakpoint token — verified 900 px shows the sidebar and 820 px the tab bar); `G` then
+`L`/`I`/`S` navigates and is ignored while typing in a field; the Reduce motion
+toggle adds `reduced-motion` to `<html>` and collapses transition durations to
+~0 (normal duration is 120 ms); the three webfonts report `loaded` and resolve
+on body (Inter), headings (Fraunces) and eyebrows (JetBrains Mono).
 
 Unit/integration coverage: parser matrix (formats, line endings, unicode,
 limits, recovery after malformed entries), choice generation, answer
 normalization, session planning and retry, scoring, repositories (cascade
 delete, reopen persistence, corrupted-row skipping, preferences fallback),
-shipped example artifacts, and the import/editor/study/dialog screens.
+shipped example artifacts (including their agreement with the published JSON
+schema), and the import/editor/study/dialog screens.
 
 E2E coverage: first-visit import → study → 100% results, malformed-import repair,
 reload persistence, offline app shell after the first visit, set export/import
@@ -196,3 +229,12 @@ Manual smoke test (dev server, Chromium): imported 4 questions, saved, completed
 a flashcard session to results (100% plus retry-mistakes), ran a multiple-choice
 session, and passed identification with messy casing and a trailing period. The
 console contained only Vite and React DevTools messages.
+
+End-to-end check of the README's own instructions in a browser (`npm run dev`,
+then paste `examples/sample-import.txt`): the import screen reported
+"4 ready / 0 to check / 0 need fixing", saving created the set, the set detail
+page listed all four questions with flashcards, multiple choice, and
+identification each available for 4 questions, and after a reload the same deep
+link (`#/sets/<id>`) still rendered the four questions from IndexedDB. Console
+and network stayed clean. Note: Vite binds loopback IPv6 by default, so the dev
+server answers on `localhost`/`[::1]` but not on a bare `127.0.0.1` URL.
