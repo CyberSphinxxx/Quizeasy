@@ -109,5 +109,7 @@ test('an invalid file never wipes local data', async ({ page }) => {
 
   // Existing data is untouched.
   await page.getByRole('link', { name: 'Library' }).first().click();
-  await expect(page.getByText('What does CPU stand for')).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'What does CPU stand for', exact: true }),
+  ).toBeVisible();
 });
