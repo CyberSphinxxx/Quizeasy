@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, Flag } from 'lucide-react';
 import { useSetBundle } from '@/hooks/useSetBundle';
 import { repositories } from '@/data/repositories';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Badge, Keycap } from '@/components/ui/Badge';
 import {
   EmptyState,
   ErrorState,
@@ -214,7 +214,7 @@ export function SessionPage() {
         title="That set is gone"
         description="It may have been deleted in another tab."
         actions={
-          <Link to="/" className="btn btn-primary">
+          <Link to="/" className="btn btn-outline">
             Back to library
           </Link>
         }
@@ -251,15 +251,21 @@ export function SessionPage() {
   const answeredCount = attempts.length;
 
   return (
-    <div className="flex flex-col gap-4">
-      <header className="flex flex-col gap-2">
+    <div className="mx-auto flex w-full max-w-[680px] flex-col gap-5">
+      <header className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold">
-              Question {index + 1} of {plan.length}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Reads "7 / 24" on screen, "Question 7 of 24" to assistive tech. */}
+            <span className="font-mono text-eyebrow text-muted">
+              <span className="sr-only">
+                Question {index + 1} of {plan.length}
+              </span>
+              <span aria-hidden="true">
+                {index + 1} / {plan.length}
+              </span>
             </span>
-            <Badge tone="info">{STUDY_MODE_LABELS[session.mode]}</Badge>
-            <Badge tone="neutral">
+            <Badge>{STUDY_MODE_LABELS[session.mode]}</Badge>
+            <Badge>
               {feedback === 'immediate' ? 'Study mode' : 'Test mode'}
             </Badge>
           </div>
@@ -341,7 +347,7 @@ export function SessionPage() {
           </Button>
         ) : (
           <Button
-            variant="secondary"
+            variant="outline"
             onClick={() => next()}
             data-testid="session-next"
           >
@@ -356,6 +362,15 @@ export function SessionPage() {
           Answer saved. Feedback comes at the end in test mode.
         </p>
       ) : null}
+
+      <p className="text-caption text-muted flex flex-wrap items-center justify-center gap-1.5">
+        <Keycap>←</Keycap>
+        <Keycap>→</Keycap>
+        <span>move</span>
+        <span aria-hidden="true">·</span>
+        <Keycap>Space</Keycap>
+        <span>next</span>
+      </p>
 
       <ConfirmDialog
         open={confirmEnd}
